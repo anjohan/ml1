@@ -1,4 +1,4 @@
-\documentclass[11pt,british,a4paper]{report}
+\documentclass[11pt,british,a4paper]{article}
 %\pdfobjcompresslevel=0
 \usepackage[usenames,dvipsnames]{xcolor}
 \usepackage[includeheadfoot,margin=0.8 in]{geometry}
@@ -12,7 +12,6 @@
 \usepackage{mathtools,upgreek,bigints}
 \usepackage{babel}
 \usepackage{graphicx}
-\graphicspath{{./}{./e/}}
 \usepackage{float}
 \usepackage{amsmath}
 \usepackage{amssymb,epstopdf}
@@ -37,7 +36,7 @@
 \usepackage{microtype}
 \usepackage[font=normalsize]{subcaption}
 \usepackage{luacode}
-\usepackage[linktoc=all, bookmarks=true, pdfauthor={Anders Johansson},pdftitle={FYS-STK4155 Project 3}]{hyperref}
+\usepackage[linktoc=all, bookmarks=true, pdfauthor={Anders Johansson},pdftitle={FYS-STK4155 Project 1}]{hyperref}
 \usepackage{tikz,pgfplots,pgfplotstable}
 \usepgfplotslibrary{colorbrewer}
 \usepgfplotslibrary{external}
@@ -53,8 +52,6 @@
 \renewcommand{\i}{\mathrm{i}}
 \newcommand{\tittel}[1]{\title{#1 \vspace{-7ex}}\author{}\date{}\maketitle\thispagestyle{fancy}\pagestyle{fancy}\setcounter{page}{1}}
 
-% \newcommand{\deloppg}[2][]{\subsection*{#2) #1}\addcontentsline{toc}{subsection}{#2)}\refstepcounter{subsection}\label{#2}}
-% \newcommand{\oppg}[1]{\section*{Oppgave #1}\addcontentsline{toc}{section}{Oppgave #1}\refstepcounter{section}\label{oppg#1}}
 
 \labelformat{section}{#1}
 \labelformat{subsection}{exercise~#1}
@@ -66,9 +63,6 @@
 \renewcommand{\footrulewidth}{\headrulewidth}
 
 %\setcounter{secnumdepth}{4}
-\renewcommand{\thesection}{Oppgave \arabic{section}}
-\renewcommand{\thesubsection}{\alph{subsection})}
-\renewcommand{\thesubsubsection}{\arabic{section}\alph{subsection}\roman{subsubsection})}
 \setlength{\parindent}{0cm}
 \setlength{\parskip}{1em}
 
@@ -78,7 +72,6 @@
 \lstset{rangeprefix=!/,
     rangesuffix=/!,
     includerangemarker=false}
-\renewcommand{\lstlistingname}{Kodesnutt}
 \lstset{showstringspaces=false,
     basicstyle=\small\ttfamily,
     keywordstyle=\color{bluekeywords},
@@ -102,7 +95,7 @@
 \allowdisplaybreaks[4]
 \fancyhf{}
 
-\rhead{Project 3}
+\rhead{Project 1}
 \rfoot{Page~\thepage{} of~\pageref{LastPage}}
 \lhead{FYS-STK4155}
 
@@ -112,17 +105,6 @@
 \newcommand{\husk}[2]{\tikz[baseline,remember picture,inner sep=0pt,outer sep=0pt]{\node[anchor=base] (#1) {\(#2\)};}}
 \newcommand{\artanh}[1]{\operatorname{artanh}{\qty(#1)}}
 \newcommand{\matrise}[1]{\begin{pmatrix}#1\end{pmatrix}}
-
-
-\pgfplotstableset{1000 sep={\,},
-                      assign column name/.style={/pgfplots/table/column name={\multicolumn{1}{c}{#1}}},
-                      every head row/.style={before row=\toprule,after row=\midrule},
-                      every last row/.style={after row=\bottomrule},
-                      columns/n/.style={column name={\(n^*\)},column type={r}},
-                      columns/N/.style={column name={\(N\)},sci},
-                      columns/logN/.style={column name={\(\log(N)\)}},
-                      columns/logn/.style={column name={\(\log(n^*)\)}}
-                      }
 
 \newread\infile
 
@@ -137,7 +119,7 @@
 \vspace*{\fill}
 \begin{center}
 \textsf{
-    \Huge \textbf{Project 3}\\\vspace{0.5cm}
+    \Huge \textbf{Project 1}\\\vspace{0.5cm}
     \Large \textbf{FYS-STK4155 --- Applied data analysis and machine learning}\\
     \vspace{8cm}
     Anders Johansson\\
@@ -155,9 +137,46 @@
 \pagestyle{fancy}
 \setcounter{page}{1}
 
+\begin{abstract}
+    This project uses fitting of Franke's function and geographical data to compare ordinary least squares, Ridge and LASSO regression. Resampling is done in order to get accurate estimates for variances and means.
+\end{abstract}
+
 All files for this project are available at \url{https://github.com/anjohan/ml1}.
 
+\section{Introduction}
+Fitting of data is an important tool in most sciences.
+The goal can be to interpolate between already measured data or predict values outside the measured range when extra experiments are infeasible, or to discover relations between quantities.
+By assuming that the data points can be modelled by a linear combination of some set of functions and minimising the error, one ends up with linear regression.
+This report explores three different linear regression methods --- ordinary least squares, which simply minimises the error, and Ridge and LASSO, which make up for their worse performance on training data by returning better predictors.
 
+The main goal of this project is to compare these three regression methods empirically by applying it to two sets of data.
+First, the regression methods are applied to a data set generated from a known function, specifically the Franke's function, which is a sum of bivariate Gaussian functions.
+Having verified the implementation of the methods, they are then applied to geographic data, namely the altitude as a function of geographic coordinates.
+
+The first part of this report goes through the basic theory of these regression methods and their implementation.
+Then, the regression methods are applied to the Franke's function and the results are analysed with resampling. Finally, geographical data is fitted with all three methods.
+
+\section{Theory and methods}
+
+\subsection{Test case}
+The function to be fitted as verification of the regression methods is the famous Franke's function \(f:\qty[0,1]^2\to\mathbb{R}\) given by
+\begin{align*}
+    f(x,y) &= \frac{3}{4}\oldexp(-\frac{(9x-2)^2}{4} - \frac{(9y-2)^2}{4})
+            + \frac{3}{4}\oldexp(-\frac{(9x+1)^2}{49}- \frac{(9y+1)}{10} ) \\
+           &+ \frac{1}{2}\oldexp(-\frac{(9x-7)^2}{4} - \frac{(9y-3)^2}{4})
+            - \frac{1}{5}\oldexp(-(9x-4)^2 - (9y-7)^2)
+\end{align*}
+and shown in \vref{fig:franke}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{franke.pdf}
+    \caption{The Franke's function to be fitted.}\label{fig:franke}
+\end{figure}
+
+
+
+\clearpage
 \nocite{*}
 \printbibliography{}
 \addcontentsline{toc}{chapter}{\bibname}
