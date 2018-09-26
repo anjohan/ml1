@@ -366,7 +366,7 @@ This Taylor expansion can then be evaluated at a point \(\vec{\beta}_0 + \delta\
 where \(H\qty(\vec{\beta}_0)\) is the derivative of \(\nabla Q\), i.e.\ the Hessian of \(Q\), evaluated at \(\beta_0\).
 Given a guess \(\beta_0\) somewhere near the minimum of \(Q\), a better estimate can be found by solving for the \(\delta\vec{\beta}\) which makes \(\nabla Q(\vec{\beta}_0 + \delta\vec{\beta}) = \vec{0}\), i.e.
 \begin{equation}
-    H\qty(\vec{\beta}_0)\delta\vec{\beta} = -\nabla Q\qty(\vec{\beta}_0),
+    H\qty(\vec{\beta}_0)\delta\vec{\beta} = -\nabla Q\qty(\vec{\beta}_0),\label{eq:newtonstep}
 \end{equation}
 letting \(\vec{\beta}_1 = \vec{\beta}_0 + \delta\vec{\beta}\) and continuing the process until the method has converged sufficiently.
 The above equation is a simple linear set of equations.
@@ -377,7 +377,15 @@ Evaluation of the gradient only involves matrix-vector products, which is also a
 The minimisation can, therefore, be done with one initial \(\mathcal{O}\qty(n^3)\) and then only \(\mathcal{O}\qty(n^2)\) operations per iteration, while the more general problem requires both the construction and the LU-decomposition of \(H\), an \(\mathcal{O}\qty(n^3)\) operation, for every single iteration.
 
 \subsubsection{Gradient descent}
-
+Evaluating the Hessian matrix and inverting it can sometimes be infeasible, for example due to poor time complexity or being woefully undefined.
+In such cases, one can replace the Hessian \(H\) with a number \(1/\alpha\).
+\Vref{eq:newtonstep} is then rewritten as
+\begin{equation}
+    \vec{\beta}_1 = \vec{\beta_0} - \alpha \nabla Q\qty(\vec{\beta}_0),
+\end{equation}
+with a simple geometric interpretation:
+By going a small step in the opposite direction of the gradient, the value of the cost function will decrease and \(\vec{\beta}\) will approach the true minimum.
+A small step will guarantee convergence for a convex function at the cost of slow convergence, while a larger value may give faster convergence or not converge at all.
 
 
 \clearpage
