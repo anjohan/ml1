@@ -1,3 +1,5 @@
+*.makefile
+*.figlist
 tags
 *.pdf
 

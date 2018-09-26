@@ -108,10 +108,12 @@
 \newcommand{\matrise}[1]{\begin{pmatrix}#1\end{pmatrix}}
 \DeclareMathOperator{\Proj}{Proj}
 \DeclareMathOperator{\Col}{Col}
+\DeclareMathOperator{\sgn}{sgn}
 
 \newread\infile
 
 \setcounter{tocdepth}{2}
+\numberwithin{equation}{section}
 
 %start
 \begin{document}
@@ -260,11 +262,11 @@ The components of the gradient can straightforwardly be calculated from the cost
 \begin{equation}
     \nabla_k Q = \pdv{\beta_k}(\qty(y_i - X_{ij}\beta_j)\qty(y_i - X_{ij}\beta_j))
                = 2\qty(y_i-X_{ij}\beta_j) \pdv{\beta_k}(y_i-X_{ij}\beta_j)
-               = -2X_{ik}\qty(y_i-X_{ij}\beta_j),
+               = -2X_{ik}\qty(y_i-X_{ij}\beta_j),\label{eq:olsgradcomp}
 \end{equation}
 which can be rewritten on vector form as
 \begin{equation}
-    \nabla Q = -2X^T\qty(\vec{y}-X\vec{\beta}).
+    \nabla Q = -2X^T\qty(\vec{y}-X\vec{\beta}).\label{eq:olsgrad}
 \end{equation}
 Setting \(\nabla Q = \vec{0}\) gives~\vref{eq:olsnormal}.
 
@@ -275,8 +277,106 @@ Setting \(\nabla Q = \vec{0}\) gives~\vref{eq:olsnormal}.
 %|_|  |_|\__,_|\__, |\___|
 %              |___/
 \subsection{Ridge regression}
+The cost function used in Ridge regression is
+\begin{equation}
+    Q_\lambda(\vec{\beta};D) = \norm{\vec{y}-X\vec{\beta}}_2^2 + \lambda \norm{\vec{\beta}}_2^2
+                             = \sum_{i=1}^N \qty(y_i - X_{ij}\beta_j)^2 + \lambda\sum_{i=1}^p \beta_i^2,
+\end{equation}
+which penalises solution vectors \(\vec{\beta}\) where some coefficients are large.
+\(\lambda\) is a parameter which should be chosen with great care.
+The error is as small as possible for \(\lambda=0\), as this will reproduce the solution found by ordinary least squares, but a non-zero value of \(\lambda\) will give \(\beta_j\)s which yield more reasonable predictions for other values of \(\vec{x}\) than those contained in the training data set \(D\)\cite{mehta}.
 
+Using the derivative of the first term from~\vref{eq:olsgrad}, the gradient of the cost function is
+\begin{equation}
+    \nabla Q_\lambda = -2 X^T \qty(\vec{y}-X\vec{\beta}) + 2\lambda \vec{\beta}
+                     = -2 X^T \vec{y} + 2 X^T X \vec{\beta} + 2\lambda \vec{\beta}
+                     = -2 X^T \vec{y} + 2\qty(X^T X + \lambda I)\vec{\beta}.
+\end{equation}
+Minimisation requires \(\nabla Q_\lambda = \vec{0}\), which gives
+\begin{equation}
+    \qty(X^T X + \lambda I)\vec{\beta} = X^T \vec{y}.
+\end{equation}
+This can be solved for \(\vec{\beta}\), and the closed-form solution to the minimisation of the Ridge cost function is
+\begin{equation}
+    \vec{\beta}_\text{Ridge} = \qty(X^T X + \lambda I)^{-1} X^T \vec{y}.
+\end{equation}
+Having a non-zero \(\lambda\) clearly reduces problems with linearly dependent columns of \(X\) and singularity of \(X^T X\).
 
+% _
+%| | __ _ ___ ___  ___
+%| |/ _` / __/ __|/ _ \
+%| | (_| \__ \__ \ (_) |
+%|_|\__,_|___/___/\___/
+\tikzexternaldisable
+\subsection{LASSO regression}
+The cost function used in LASSO regression is
+\begin{equation}
+    Q_\lambda(\vec{\beta};D) = \norm{\vec{y}-X\vec{\beta}}_2^2 + \lambda \norm{\vec{\beta}}_1
+                             = \sum_{i=1}^N \qty(y_i - X_{ij}\beta_j)^2 + \lambda\sum_{i=1}^p \abs{\beta_i},
+\end{equation}
+which also penalises solution vectors \(\vec{\beta}\) where some coefficients are large.
+LASSO regression has the advantage that certain choices of \(\lambda\) will give a sparse solution, i.e. \(\beta_j=0\) for some values of \(j\)\cite{wieringen}.
+
+As with the other regression methods, the gradient of the cost function should now be differentiated and set to zero.
+Mathematicians will now point out that the absolute value is not differentiable at zero and start deriving ingenious minimisation methods to circumvent the problem.
+This is a non-issue in a physics course --- I will now \emph{define} the derivative to be
+\begin{equation}
+    \dv{\abs{x}}{x} \coloneqq \sgn{x} \coloneqq \begin{cases}1, & x > 0\\ 0, & x = 0 \\ -1, & x < 0 \end{cases}
+\end{equation}
+and proceed happily.
+
+The gradient of the cost function is thus
+\begin{equation}
+    \nabla Q_\lambda = -2 X^T \qty(\vec{y} - X\vec{\beta}) + \lambda \sgn\qty(\vec{\beta}),
+\end{equation}
+and \(\nabla Q_\lambda = \vec{0}\) does unfortunately not have a closed-form solution.
+A separate minimisation algorithm must therefore be used to find the parameters \(\beta_j\) which minimise the cost function.
+The calculated gradient can be put straight into the gradient descent algorithm with a suitable step length.
+Alternatively, Newton's method can be used with the second derivative (Hessian) matrix of the cost function.
+The second derivative of the absolute value is even more problematic, which is solved by setting it equal to zero.
+
+The Hessian matrix of the LASSO cost function is thus the same as the second derivative of the ordinary least squares cost function,
+\begin{equation}
+    H_{kl} = H_{lk} = \pdv{Q_\lambda}{\beta_l}{\beta_k}
+           = \pdv{\beta_l}(\nabla_k Q)
+           \,\husk{gradref}{=}\, \pdv{\beta_l}(-2X_{ik}\qty(y_i-X_{ij}\beta_j))
+           = 2X_{ik}X_{il},
+\tikz[>=latex,overlay,remember picture,thick]{\draw[<-,gronn] (gradref) .. controls ++(0,0.75) and ++(-1,0) .. ++(1,0.75) node[anchor=west] {\small\ref{eq:olsgradcomp}};}
+\end{equation}
+which in matrix form can be written as
+\begin{equation}
+    H = 2 X^T X.
+\end{equation}
+
+%           _       _           _           _   _
+% _ __ ___ (_)_ __ (_)_ __ ___ (_)___  __ _| |_(_) ___  _ __
+%| '_ ` _ \| | '_ \| | '_ ` _ \| / __|/ _` | __| |/ _ \| '_ \
+%| | | | | | | | | | | | | | | | \__ \ (_| | |_| | (_) | | | |
+%|_| |_| |_|_|_| |_|_|_| |_| |_|_|___/\__,_|\__|_|\___/|_| |_|
+\subsection{Minimisation methods}
+The important step in a regression method, or indeed in any statistical learning method, is to minimise the cost function.
+Certain cost functions, such as those of ordinary least squares and Ridge regression, admit analytical closed-form solutions for the parameters \(\beta_j\) which minimise \(Q(\vec{\beta};D)\), while most methods, including LASSO regression and logistic regression, require usage of some general minimisation algorithm.
+
+\subsubsection{Newton's method}
+Since the gradient of the cost function, \(\nabla Q\), is a perfectly normal function from \(\mathbb{R}^p\) to \(\mathbb{R}^p\), it can be Taylor expanded around some point \(\vec{\beta}_0\).
+This Taylor expansion can then be evaluated at a point \(\vec{\beta}_0 + \delta\vec{\beta}\). To first order in \(\delta\vec{\beta}\),
+\begin{equation}
+    \nabla Q\qty(\vec{\beta}_0 + \delta\vec{\beta}) = \nabla Q\qty(\vec{\beta}_0) + H\qty(\vec{\beta}_0)\delta\vec{\beta},
+\end{equation}
+where \(H\qty(\vec{\beta}_0)\) is the derivative of \(\nabla Q\), i.e.\ the Hessian of \(Q\), evaluated at \(\beta_0\).
+Given a guess \(\beta_0\) somewhere near the minimum of \(Q\), a better estimate can be found by solving for the \(\delta\vec{\beta}\) which makes \(\nabla Q(\vec{\beta}_0 + \delta\vec{\beta}) = \vec{0}\), i.e.
+\begin{equation}
+    H\qty(\vec{\beta}_0)\delta\vec{\beta} = -\nabla Q\qty(\vec{\beta}_0),
+\end{equation}
+letting \(\vec{\beta}_1 = \vec{\beta}_0 + \delta\vec{\beta}\) and continuing the process until the method has converged sufficiently.
+The above equation is a simple linear set of equations.
+
+Minimisation of the LASSO cost function has the benefit that the second derivative is independent of \(\vec{\beta}\).
+\(H\) can therefore be LU-decomposed once, an \(\mathcal{O}\qty(n^3)\) operation, and the result can be used to solve the linear set of equations for each iteration, which is \(\mathcal{O}\qty(n^2)\) with a pre-LU-decomposed matrix.
+Evaluation of the gradient only involves matrix-vector products, which is also an \(\mathcal{O}\qty(n^2)\) operation.
+The minimisation can, therefore, be done with one initial \(\mathcal{O}\qty(n^3)\) and then only \(\mathcal{O}\qty(n^2)\) operations per iteration, while the more general problem requires both the construction and the LU-decomposition of \(H\), an \(\mathcal{O}\qty(n^3)\) operation, for every single iteration.
+
+\subsubsection{Gradient descent}
 
 
 
