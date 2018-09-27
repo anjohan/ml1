@@ -1,0 +1,30 @@
+cmake_minimum_required(VERSION 3.9)
+project(1)
+enable_language(Fortran)
+
+find_package(LAPACK REQUIRED)
+
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+if(CMAKE_Fortran_COMPILER_ID MATCHES GNU)
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Wall -Wextra")
+    set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} -fcheck=all")
+    set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -march=native")
+endif()
+
+file(GLOB lib_files ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.f90)
+set(libs ${LAPACK_LIBRARIES})
+foreach(lib_file ${lib_files})
+    get_filename_component(lib_name ${lib_file} NAME_WE)
+    add_library(${lib_name} ${lib_file})
+    list(APPEND libs ${lib_name})
+endforeach(lib_file)
+
+file(GLOB prog_files ${CMAKE_CURRENT_SOURCE_DIR}/programs/*.f90)
+foreach(prog_file ${prog_files})
+    get_filename_component(prog_name ${prog_file} NAME_WE)
+    add_executable(${prog_name} ${prog_file})
+    target_link_libraries(${prog_name} ${libs})
+endforeach(prog_file)
