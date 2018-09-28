@@ -1,6 +1,6 @@
 program test
     use iso_fortran_env, only: dp => real64
-    use mod_polyfitter2d
+    use mod_ridge2d
     implicit none
 
     class(polyfitter2d), allocatable :: pf
@@ -14,7 +14,7 @@ program test
 
     y = 1 + 2*x(:,1) + 3*x(:,1)**2 + 3.5*x(:,2) + 4*x(:,1)*x(:,2) + 5*x(:,2)**2
 
-    pf = polyfitter2d(d)
+    pf = ridge2d(d, 0.1_dp)
 
     call pf%fit(x, y)
 

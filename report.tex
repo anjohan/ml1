@@ -372,9 +372,11 @@ letting \(\vec{\beta}_1 = \vec{\beta}_0 + \delta\vec{\beta}\) and continuing the
 The above equation is a simple linear set of equations.
 
 Minimisation of the LASSO cost function has the benefit that the second derivative is independent of \(\vec{\beta}\).
-\(H\) can therefore be LU-decomposed once, an \(\mathcal{O}\qty(n^3)\) operation, and the result can be used to solve the linear set of equations for each iteration, which is \(\mathcal{O}\qty(n^2)\) with a pre-LU-decomposed matrix.
+\(H\) can therefore be Cholesky-decomposed once, an \(\mathcal{O}\qty(n^3)\) operation, and the result can be used to solve the linear set of equations for each iteration, which is \(\mathcal{O}\qty(n^2)\) with a pre-Cholesky-decomposed matrix.
+The Cholesky-decomposition can be used instead of an LU-decomposition, reducing the number of floating point operations by a factor of two, because \(H=2X^T X\) is positive definite when \(X\) is non-singular.
+
 Evaluation of the gradient only involves matrix-vector products, which is also an \(\mathcal{O}\qty(n^2)\) operation.
-The minimisation can, therefore, be done with one initial \(\mathcal{O}\qty(n^3)\) and then only \(\mathcal{O}\qty(n^2)\) operations per iteration, while the more general problem requires both the construction and the LU-decomposition of \(H\), an \(\mathcal{O}\qty(n^3)\) operation, for every single iteration.
+The minimisation can, therefore, be done with one initial \(\mathcal{O}\qty(n^3)\) and then only \(\mathcal{O}\qty(n^2)\) operations per iteration, while the more general problem requires both the construction and the Cholesky-decomposition of \(H\), an \(\mathcal{O}\qty(n^3)\) operation, for every single iteration.
 
 \subsubsection{Gradient descent}
 Evaluating the Hessian matrix and inverting it can sometimes be infeasible, for example due to poor time complexity or being woefully undefined.
