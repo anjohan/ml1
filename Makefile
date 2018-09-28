@@ -1,5 +1,5 @@
 all: report.pdf
-	mkdir -p build && cd build && cmake .. && make
+	mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. && make
 
 deps = sources.bib figs/franke.pdf
 

@@ -347,6 +347,14 @@ which in matrix form can be written as
 \begin{equation}
     H = 2 X^T X.
 \end{equation}
+The gradient can now be rewritten as
+\begin{equation}
+    \nabla Q_\lambda = -2 X^T \vec{y} + H\vec{\beta} + \lambda \sgn\qty(\vec{\beta}).
+\end{equation}
+%so Newton's method (see \vref{subsubsec:newton}) can be rewritten as
+%\begin{equation}
+%    H\qty(\vec{\beta}_1 - \vec{\beta}_0) =
+
 
 %           _       _           _           _   _
 % _ __ ___ (_)_ __ (_)_ __ ___ (_)___  __ _| |_(_) ___  _ __
@@ -357,7 +365,7 @@ which in matrix form can be written as
 The important step in a regression method, or indeed in any statistical learning method, is to minimise the cost function.
 Certain cost functions, such as those of ordinary least squares and Ridge regression, admit analytical closed-form solutions for the parameters \(\beta_j\) which minimise \(Q(\vec{\beta};D)\), while most methods, including LASSO regression and logistic regression, require usage of some general minimisation algorithm.
 
-\subsubsection{Newton's method}
+\subsubsection{Newton's method}\label{subsubsec:newton}
 Since the gradient of the cost function, \(\nabla Q\), is a perfectly normal function from \(\mathbb{R}^p\) to \(\mathbb{R}^p\), it can be Taylor expanded around some point \(\vec{\beta}_0\).
 This Taylor expansion can then be evaluated at a point \(\vec{\beta}_0 + \delta\vec{\beta}\). To first order in \(\delta\vec{\beta}\),
 \begin{equation}

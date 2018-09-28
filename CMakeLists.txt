@@ -15,7 +15,7 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES GNU)
 endif()
 
 file(GLOB lib_files ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.f90)
-set(libs polyfitter2d ridge2d)
+set(libs polyfitter2d ridge2d lasso2d)
 set(tmp_libs ${LAPACK_LIBRARIES})
 foreach(lib ${libs})
     add_library(${lib} ${CMAKE_CURRENT_SOURCE_DIR}/lib/${lib}.f90)
