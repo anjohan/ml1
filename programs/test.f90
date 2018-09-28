@@ -5,9 +5,10 @@ program test
 
     class(polyfitter2d), allocatable :: pf
     integer :: d = 2, N = 10
-    real(dp), allocatable :: x(:,:), y(:)
+    real(dp), allocatable :: x(:,:), y(:), y_pred(:)
+    real(dp) :: mse, r2
 
-    allocate(x(N,2), y(N))
+    allocate(x(N,2), y(N), y_pred(N))
 
     call random_number(x)
 
@@ -18,4 +19,9 @@ program test
     call pf%fit(x, y)
 
     write(*,*) pf%beta
+
+    call pf%predict(x, y_pred, y, mse, r2)
+    write(*,*) y
+    write(*,*) y_pred
+    write(*,*) mse, r2
 end program

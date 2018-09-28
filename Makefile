@@ -1,4 +1,5 @@
 all: report.pdf
+	mkdir -p build && cd build && cmake .. && make
 
 deps = sources.bib figs/franke.pdf
 
@@ -10,4 +11,4 @@ deps = sources.bib figs/franke.pdf
 
 clean:
 	latexmk -c
-	rm -rf *.run.xml *.bbl
+	rm -rf *.run.xml *.bbl build
