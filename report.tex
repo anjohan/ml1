@@ -351,10 +351,12 @@ The gradient can now be rewritten as
 \begin{equation}
     \nabla Q_\lambda = -2 X^T \vec{y} + H\vec{\beta} + \lambda \sgn\qty(\vec{\beta}).
 \end{equation}
-%so Newton's method (see \vref{subsubsec:newton}) can be rewritten as
-%\begin{equation}
-%    H\qty(\vec{\beta}_1 - \vec{\beta}_0) =
-
+\Vref*{eq:newtonstep} in Newton's method can then be written as
+\begin{equation}
+    H\qty(\vec{\beta}_{i+1} - \vec{\beta}_i) = 2X^T \vec{y}  - H\vec{\beta}_i - \lambda \sgn\qty(\vec{\beta}_i)
+    \implies H\vec{\beta}_{i+1} = 2X^T\vec{y} - \lambda \sgn\qty(\vec{\beta}_i).
+\end{equation}
+Since \(H=2X^T X\), this reduces to the normal equations of ordinary least squares (\vref*{eq:olsnormal}) in the case of \(\lambda=0\), as it should.
 
 %           _       _           _           _   _
 % _ __ ___ (_)_ __ (_)_ __ ___ (_)___  __ _| |_(_) ___  _ __
@@ -374,9 +376,13 @@ This Taylor expansion can then be evaluated at a point \(\vec{\beta}_0 + \delta\
 where \(H\qty(\vec{\beta}_0)\) is the derivative of \(\nabla Q\), i.e.\ the Hessian of \(Q\), evaluated at \(\beta_0\).
 Given a guess \(\beta_0\) somewhere near the minimum of \(Q\), a better estimate can be found by solving for the \(\delta\vec{\beta}\) which makes \(\nabla Q(\vec{\beta}_0 + \delta\vec{\beta}) = \vec{0}\), i.e.
 \begin{equation}
-    H\qty(\vec{\beta}_0)\delta\vec{\beta} = -\nabla Q\qty(\vec{\beta}_0),\label{eq:newtonstep}
+    H\qty(\vec{\beta}_0)\delta\vec{\beta} = -\nabla Q\qty(\vec{\beta}_0),
 \end{equation}
-letting \(\vec{\beta}_1 = \vec{\beta}_0 + \delta\vec{\beta}\) and continuing the process until the method has converged sufficiently.
+and, in general, solving
+\begin{equation}
+    H\qty(\vec{\beta}_i)\delta\vec{\beta}_i = -\nabla Q\qty(\vec{\beta}_i),\label{eq:newtonstep}
+\end{equation}
+letting \(\vec{\beta}_{i+1} = \vec{\beta}_i + \delta\vec{\beta}_i\) and continuing the process until the method has converged sufficiently.
 The above equation is a simple linear set of equations.
 
 Minimisation of the LASSO cost function has the benefit that the second derivative is independent of \(\vec{\beta}\).

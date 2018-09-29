@@ -13,16 +13,16 @@ program test
 
     call random_number(x)
 
-    y = 1 + 2*x(:,1) + 3*x(:,1)**2 + 3.5*x(:,2) + 4*x(:,1)*x(:,2) + 5*x(:,2)**2
+    y = 1 - 2*x(:,1) + 0*x(:,1)**2 + 3.5*x(:,2) + 4*x(:,1)*x(:,2) + 5*x(:,2)**2
 
-    pf = lasso2d(d, 1.5_dp)
+    pf = lasso2d(d, 1.0_dp)
 
     call pf%fit(x, y)
 
     write(*,*) pf%beta
 
     call pf%predict(x, y_pred, y, mse, r2)
-    write(*,*) y
-    write(*,*) y_pred
+    ! write(*,*) y
+    ! write(*,*) y_pred
     write(*,*) mse, r2
 end program

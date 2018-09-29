@@ -14,7 +14,6 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES GNU)
     set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -march=native")
 endif()
 
-file(GLOB lib_files ${CMAKE_CURRENT_SOURCE_DIR}/lib/*.f90)
 set(libs polyfitter2d ridge2d lasso2d)
 set(tmp_libs ${LAPACK_LIBRARIES})
 foreach(lib ${libs})
