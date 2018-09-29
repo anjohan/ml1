@@ -5,7 +5,7 @@ program test
     implicit none
 
     class(polyfitter2d), allocatable :: pf
-    integer :: d = 2, N = 1000
+    integer :: d = 1, N = 1000
     real(dp), allocatable :: x(:,:), y(:), y_pred(:)
     real(dp) :: mse, r2
 

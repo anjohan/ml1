@@ -3,7 +3,7 @@ all: report.pdf
 
 deps = sources.bib figs/franke.pdf
 
-%.pdf: %.tex $(deps)
+%.pdf: %.tex $(deps) lib/lasso2d.f90
 	latexmk -pdflua -time -shell-escape $*
 
 %.pdf: %.asy

@@ -81,7 +81,8 @@
     stringstyle=\color{redstrings},
     breaklines=true,
     %texcl=true,
-    language=Fortran
+    language=Fortran,
+    morekeywords={norm2}
 }
 \colorlet{DarkGrey}{white!20!black}
 \newcommand{\eqtag}[1]{\refstepcounter{equation}\tag{\theequation}\label{#1}}
@@ -109,6 +110,7 @@
 \DeclareMathOperator{\Proj}{Proj}
 \DeclareMathOperator{\Col}{Col}
 \DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\MSE}{MSE}
 
 \newread\infile
 
@@ -210,6 +212,8 @@ Consequently, one must find the \(\beta_j\)s which in some sense make \(X\vec{\b
 The way in which to measure deviation from the perfect solution is called the \emph{cost function}, frequently written \(Q(\vec{\beta};D)\).
 Regression methods differ in the choice of cost function, while their aim is always to find the parameters \(\beta_j\) which minimise the cost function.
 
+When a regression method has been used to find \(\vec{\beta}\), predicted values are denoted \(\tilde{y}_i = X_{ij}\beta_j\), while the original, exact values are denoted \(y_i\).
+
 %                _ _                          _                _
 %   ___  _ __ __| (_)_ __   __ _ _ __ _   _  | | ___  __ _ ___| |_
 %  / _ \| '__/ _` | | '_ \ / _` | '__| | | | | |/ _ \/ _` / __| __|
@@ -221,7 +225,7 @@ Regression methods differ in the choice of cost function, while their aim is alw
 % \__ \ (_| | |_| | (_| | | |  __/\__ \
 % |___/\__, |\__,_|\__,_|_|  \___||___/
 %         |_|
-\subsection{Ordinary Least Squares (OLS)}
+\subsection{Ordinary Least Squares}
 The ordinary least squares method is the simplest and most intuitive, since its cost function is simply the square of the error made by the fit,
 \begin{equation}
     Q(\beta;D) = \norm{\vec{y}-X\vec{\beta}}_2^2,
@@ -270,6 +274,8 @@ which can be rewritten on vector form as
 \end{equation}
 Setting \(\nabla Q = \vec{0}\) gives~\vref{eq:olsnormal}.
 
+Ordinary least squares has been implemented by calling \lstinline{dgels}, which uses a QR-factorisation.
+
 %      _     _
 % _ __(_) __| | __ _  ___
 %| '__| |/ _` |/ _` |/ _ \
@@ -301,6 +307,8 @@ This can be solved for \(\vec{\beta}\), and the closed-form solution to the mini
     \vec{\beta}_\text{Ridge} = \qty(X^T X + \lambda I)^{-1} X^T \vec{y}.
 \end{equation}
 Having a non-zero \(\lambda\) clearly reduces problems with linearly dependent columns of \(X\) and singularity of \(X^T X\).
+
+Ridge regression has been implemented by calculating \(X^T X\) and adding \(\lambda\) on the diagonal, calculating \(X^T y\) and using \lstinline{dposv} to find \(\vec{\beta}\) using a Cholesky-decomposition, since \(X^T X + \lambda I\) is positive definite.
 
 % _
 %| | __ _ ___ ___  ___
@@ -343,7 +351,7 @@ The Hessian matrix of the LASSO cost function is thus the same as the second der
            = 2X_{ik}X_{il},
 \tikz[>=latex,overlay,remember picture,thick]{\draw[<-,gronn] (gradref) .. controls ++(0,0.75) and ++(-1,0) .. ++(1,0.75) node[anchor=west] {\small\ref{eq:olsgradcomp}};}
 \end{equation}
-which in matrix form can be written as
+which is the component form of the matrix equation
 \begin{equation}
     H = 2 X^T X.
 \end{equation}
@@ -351,12 +359,15 @@ The gradient can now be rewritten as
 \begin{equation}
     \nabla Q_\lambda = -2 X^T \vec{y} + H\vec{\beta} + \lambda \sgn\qty(\vec{\beta}).
 \end{equation}
-\Vref*{eq:newtonstep} in Newton's method can then be written as
+\Vref*{eq:newtonstep} in Newton's method can then transformed into
 \begin{equation}
     H\qty(\vec{\beta}_{i+1} - \vec{\beta}_i) = 2X^T \vec{y}  - H\vec{\beta}_i - \lambda \sgn\qty(\vec{\beta}_i)
-    \implies H\vec{\beta}_{i+1} = 2X^T\vec{y} - \lambda \sgn\qty(\vec{\beta}_i).
+    \implies H\vec{\beta}_{i+1} = 2X^T\vec{y} - \lambda \sgn\qty(\vec{\beta}_i). \label{eq:lassonewton}
 \end{equation}
 Since \(H=2X^T X\), this reduces to the normal equations of ordinary least squares (\vref*{eq:olsnormal}) in the case of \(\lambda=0\), as it should.
+
+LASSO regression has been implemented by calculating the Cholesky-decomposition of \(H\) using \lstinline{dpptrf}, guessing \(\beta_j=1\) and then repeatedly solving~\vref{eq:lassonewton} using \lstinline{dpptrs} until convergence, as illustrated by the following snippet.
+\lstinputlisting[linerange={lassostart-lassoend}]{lib/lasso2d.f90}
 
 %           _       _           _           _   _
 % _ __ ___ (_)_ __ (_)_ __ ___ (_)___  __ _| |_(_) ___  _ __
@@ -397,11 +408,43 @@ Evaluating the Hessian matrix and inverting it can sometimes be infeasible, for 
 In such cases, one can replace the Hessian \(H\) with a number \(1/\alpha\).
 \Vref{eq:newtonstep} is then rewritten as
 \begin{equation}
-    \vec{\beta}_1 = \vec{\beta_0} - \alpha \nabla Q\qty(\vec{\beta}_0),
+    \vec{\beta}_{i+1} = \vec{\beta_i} - \alpha \nabla Q\qty(\vec{\beta}_i),
 \end{equation}
 with a simple geometric interpretation:
 By going a small step in the opposite direction of the gradient, the value of the cost function will decrease and \(\vec{\beta}\) will approach the true minimum.
 A small step will guarantee convergence for a convex function at the cost of slow convergence, while a larger value may give faster convergence or not converge at all.
+
+%                   __
+%  _ __   ___ _ __ / _| ___  _ __ _ __ ___   __ _ _ __   ___ ___
+% | '_ \ / _ \ '__| |_ / _ \| '__| '_ ` _ \ / _` | '_ \ / __/ _ \
+% | |_) |  __/ |  |  _| (_) | |  | | | | | | (_| | | | | (_|  __/
+% | .__/ \___|_|  |_|  \___/|_|  |_| |_| |_|\__,_|_| |_|\___\___|
+% |_|
+\subsection{Performance of regression methods}
+While the cost function is minimised by all regression methods, its value is not particularly meaningful.
+In particular, the cost functions in Ridge and LASSO regression depend on the parameter \(\lambda\), and a measure independent of \(\lambda\) should be used to determine the optimal \(\lambda\).
+Other functions are therefore introduced to measure the performance of a given regression method and/or a choice of parameters.
+
+The simplest measure is the mean square error,
+\begin{equation}
+    \MSE\qty(\vec{\beta},D) = \frac{1}{N}\norm{\vec{y}-\vec{\tilde{y}}}_2^2 = \frac{1}{N} \sum_{i=1}^N \qty(y_i - \tilde{y}_i)^2,
+\end{equation}
+which should be as small as possible. Another measure is the \(R^2\) score, defined as
+\begin{equation}
+    R^2(\vec{\beta},D) = 1 - \frac{\norm{\vec{y} - \vec{\tilde{y}}}_2^2}{\norm{\vec{y} - \bar{y}}_2^2}
+                       = 1 - \frac{\sum_{i=1}^N \qty(y_i - \tilde{y}_i)^2}{\sum_{i=1}^N \qty(y_i - \bar{y})^2},
+\end{equation}
+where \(\bar{y}\) is the mean of the measured values. The \(R^2\) score should be as close to \(1\) as possible.
+
+Prediction and these measures of performance can be applied to two main types of data.
+Firstly, it can be applied to the data from which \(\vec{\beta}\) was derived, which is called the training data.
+Ordinary least squares, corresponding to \(\lambda=0\) for the other methods, will, by definition, give the best results for this data set.
+Secondly, the performance can be measured for values not among the training data, called test data. Ridge and LASSO are expected to outperform ordinary least squares for small, non-zero values of \(\lambda\) for this category of data.
+
+
+
+
+
 
 
 \clearpage
