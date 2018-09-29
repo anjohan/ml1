@@ -27,4 +27,4 @@ triple franke(pair xy){
 
 surface graf2 = surface(franke, (0,0), (1,1),nu=50,nv=50,Spline);
 draw(graf2,surfacepen=material(blue+0.5*white+opacity(myopacity)));
-axes3("$x$","$y$","$f(x,y)$",min=(-0.2,-0.2,-0.2),max=(1.2,1.2,1.2),arrow=Arrow3());
+axes3("$x_1$","$x_2$","$f(x_1,x_2)$",min=(-0.2,-0.2,-0.2),max=(1.2,1.2,1.2),arrow=Arrow3());
