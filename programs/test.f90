@@ -2,10 +2,12 @@ program test
     use iso_fortran_env, only: dp => real64
     use mod_ridge2d
     use mod_lasso2d
+    use mod_bootstrap
     implicit none
 
     class(polyfitter2d), allocatable :: pf
-    integer :: d = 1, N = 1000
+    class(bootstrapper), allocatable :: bs
+    integer :: d = 2, N = 10000
     real(dp), allocatable :: x(:,:), y(:), y_pred(:)
     real(dp) :: mse, r2
 
@@ -15,7 +17,7 @@ program test
 
     y = 1 - 2*x(:,1) + 0*x(:,1)**2 + 3.5*x(:,2) + 4*x(:,1)*x(:,2) + 5*x(:,2)**2
 
-    pf = lasso2d(d, 1.0_dp)
+    pf = ridge2d(d, 1.0_dp)
 
     call pf%fit(x, y)
 
@@ -25,4 +27,8 @@ program test
     ! write(*,*) y
     ! write(*,*) y_pred
     write(*,*) mse, r2
+
+    bs = bootstrapper(pf)
+    call bs%bootstrap(x, y, 1000)
+    write(*,*) sum(bs%betas, dim=2)/size(bs%betas, dim=2)
 end program
