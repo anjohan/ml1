@@ -11,16 +11,16 @@ program test
     class(regressor), allocatable :: fitter
     class(bootstrapper), allocatable :: bs
     class(polynomial2d), allocatable :: basis(:)
-    integer :: d = 2, N = 900, i
+    integer :: d = 2, N = 16, i
     real(dp), allocatable :: x(:,:), y(:), y_pred(:)
     real(dp) :: mse, r2
 
     allocate(x(N,2), y(N), y_pred(N))
 
-    x = random_meshgrid(nint(sqrt(1.0*N)))
+    x = random_meshgrid(nint(sqrt(1.0*N)), "test")
 
     y = 1 - 2*x(:,1) + 0*x(:,1)**2 + 3.5*x(:,2) + 4*x(:,1)*x(:,2) + 5*x(:,2)**2
-    call add_noise(y, sigma=0.1d0)
+    call add_noise(y, sigma=1.5d0)
 
     call create_basis(basis, d)
     ! fitter = ols(basis=basis)
