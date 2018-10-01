@@ -3,7 +3,7 @@ all: report.pdf
 
 deps = sources.bib figs/franke.pdf
 
-%.pdf: %.tex $(deps) lib/lasso2d.f90
+%.pdf: %.tex $(deps) lib/lasso.f90
 	latexmk -pdflua -time -shell-escape $*
 
 %.pdf: %.asy
@@ -12,3 +12,4 @@ deps = sources.bib figs/franke.pdf
 clean:
 	latexmk -c
 	rm -rf *.run.xml *.bbl build
+	find -name "*.mod" -delete

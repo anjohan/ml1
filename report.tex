@@ -48,10 +48,6 @@
 \renewcommand{\CancelColor}{\color{red}}
 \let\oldexp=\exp
 \renewcommand{\exp}[1]{\mathrm{e}^{#1}}
-\renewcommand{\Re}[1]{\mathfrak{Re}\ifthenelse{\equal{#1}{}}{}{\left(#1\right)}}
-\renewcommand{\Im}[1]{\mathfrak{Im}\ifthenelse{\equal{#1}{}}{}{\left(#1\right)}}
-\renewcommand{\i}{\mathrm{i}}
-\newcommand{\tittel}[1]{\title{#1 \vspace{-7ex}}\author{}\date{}\maketitle\thispagestyle{fancy}\pagestyle{fancy}\setcounter{page}{1}}
 
 
 \labelformat{section}{#1}
@@ -82,7 +78,7 @@
     breaklines=true,
     %texcl=true,
     language=Fortran,
-    morekeywords={norm2}
+    morekeywords={norm2,class,deferred}
 }
 \colorlet{DarkGrey}{white!20!black}
 \newcommand{\eqtag}[1]{\refstepcounter{equation}\tag{\theequation}\label{#1}}
@@ -116,6 +112,8 @@
 
 \setcounter{tocdepth}{2}
 \numberwithin{equation}{section}
+
+\usepackage{tikz-uml}
 
 %start
 \begin{document}
@@ -366,7 +364,7 @@ The gradient can now be rewritten as
 Since \(H=2X^T X\), this reduces to the normal equations of ordinary least squares (\vref*{eq:olsnormal}) in the case of \(\lambda=0\), as it should.
 
 LASSO regression has been implemented by calculating the Cholesky-decomposition of \(H\) using \lstinline{dpptrf}, guessing \(\beta_j=1\) and then repeatedly solving~\vref{eq:lassonewton} using \lstinline{dpptrs} until convergence, as illustrated by the following snippet.
-\lstinputlisting[linerange={lassostart-lassoend}]{lib/lasso2d.f90}
+\lstinputlisting[linerange={lassostart-lassoend}]{lib/lasso.f90}
 
 %           _       _           _           _   _
 % _ __ ___ (_)_ __ (_)_ __ ___ (_)___  __ _| |_(_) ___  _ __
@@ -504,6 +502,62 @@ The second term measures the deviation of the average prediction from the true, 
 Lastly, the third term measures how much the predictions vary and is called the variance.
 A complex model (large \(p\)) will minimise the second term, since a complex model will be better suited to fit the true model, \(f\), while the third term will increase with model complexity since the fitting procedure will be more sensitive to noise in the different data sets.
 
+%  _                 _                           _        _   _
+% (_)_ __ ___  _ __ | | ___ _ __ ___   ___ _ __ | |_ __ _| |_(_) ___  _ __
+% | | '_ ` _ \| '_ \| |/ _ \ '_ ` _ \ / _ \ '_ \| __/ _` | __| |/ _ \| '_ \
+% | | | | | | | |_) | |  __/ | | | | |  __/ | | | || (_| | |_| | (_) | | | |
+% |_|_| |_| |_| .__/|_|\___|_| |_| |_|\___|_| |_|\__\__,_|\__|_|\___/|_| |_|
+%             |_|
+\subsection{Implementation}
+The three regression methods and bootstrapping have been implemented in a polymorphic class hierarchy in Fortran.
+An object-oriented approach ensures ease of reuse for later projects, while also simplifying certain parts of the code and organisation.
+For instance, the bootstrapping algorithm can take in a regression method object, which is guaranteed to have methods for prediction and fitting, and not care whether ordinary least squares, Ridge or LASSO regression is used. Fortran was chosen because it combines excellent performance with object-oriented capabilities and a nice syntax for numerical work.
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{umlpackage}{Linear regression and bootstrapping}
+            \umlclass[type=abstract]{regressor}{
+                \lstinline{real :: X(N, p), beta(p)}\\
+                \lstinline{class(basis_function) :: basis(p)}
+            }{
+                \lstinline{subroutine create_X(real :: x_values(N,p))}\\
+                \lstinline{subroutine predict(real :: x(N,p), y(N); optional :: y_exact(N), mse, r2)}\\
+                \lstinline{deferred subroutine fit(real, optional :: x_values(N,p); real :: y_values(N))}
+            }
+            \umlclass[below = 1cm of regressor.south, anchor=north]{ridge}{
+                \lstinline{real :: lambda}
+            }{}
+            \umlemptyclass[left=1cm of ridge.north west, anchor=north east]{ols}
+            \umlclass[right = 1cm of ridge.north east, anchor=north west]{lasso}{
+                \lstinline{real :: lambda}\\
+                \lstinline{real :: tolerance}
+            }{}
+            \umlinherit[geometry=|-|,arm1=0.3cm,arm2=0.3cm,anchor1=90,anchor2=240]{ols}{regressor}
+            \umlinherit[geometry=|-|,arm1=0.3cm,arm2=0.3cm,anchor1=90,anchor2=270]{ridge}{regressor}
+            \umlinherit[geometry=|-|,arm1=0.3cm,arm2=0.3cm,anchor1=90,anchor2=300]{lasso}{regressor}
+
+            \umlclass[type=abstract, below=5.5cm of regressor.west,anchor=north west]{basisfunction}{}{
+                \lstinline{deferred real function eval(real :: x(:))}
+            }
+            \umlclass[right=1cm of basisfunction.north east,anchor=north west]{polynomial2d}{
+                \lstinline{integer :: x1_pow, x2_pow}
+            }{}
+            \umlinherit{polynomial2d}{basisfunction}
+
+            \umluniassoc[pos1=2.9, mult1=1..*, geometry=|-|, anchor1=202, anchor2=165,weight=0.35]{regressor}{basisfunction}
+
+            \umlclass[above=1cm of regressor.north, anchor=south]{bootstrapper}{
+                \lstinline{class(regressor) :: fitter}\\
+                \lstinline{real :: x(N, p), y(N), y_predictions(N, num_bootstraps)}\\
+                \lstinline{real :: betas(p, num_bootstraps), R2s(num_bootstraps), MSEs(num_bootstraps)}
+            }{
+                \lstinline{subroutine bootstrap(real :: x(:,:), y(:); integer :: num_bootstraps)}
+            }
+            \umluniassoc[mult1=1,pos1=0.8]{bootstrapper}{regressor}
+        \end{umlpackage}
+    \end{tikzpicture}
+    \caption{Class hierarchy of implementation. All \lstinline{real} variables are of kind \lstinline{real64} from \lstinline{iso_fortran_env}.}
+\end{figure}
 
 
 
