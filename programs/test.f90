@@ -1,5 +1,6 @@
 program test
     use iso_fortran_env, only: dp => real64
+    use mod_utilities
     use mod_polynomials2d
     use mod_ols
     use mod_ridge
@@ -10,21 +11,21 @@ program test
     class(regressor), allocatable :: fitter
     class(bootstrapper), allocatable :: bs
     class(polynomial2d), allocatable :: basis(:)
-    integer :: d = 2, N = 10000
+    integer :: d = 2, N = 900, i
     real(dp), allocatable :: x(:,:), y(:), y_pred(:)
     real(dp) :: mse, r2
 
     allocate(x(N,2), y(N), y_pred(N))
 
-    call create_basis(basis,d)
-
-    call random_number(x)
+    x = random_meshgrid(nint(sqrt(1.0*N)))
 
     y = 1 - 2*x(:,1) + 0*x(:,1)**2 + 3.5*x(:,2) + 4*x(:,1)*x(:,2) + 5*x(:,2)**2
+    call add_noise(y, sigma=0.1d0)
 
+    call create_basis(basis, d)
     ! fitter = ols(basis=basis)
-    ! fitter = ridge(basis=basis, lambda=1.0_dp)
-    fitter = lasso(basis=basis, lambda=1.5_dp)
+    fitter = ridge(basis=basis, lambda=1.0_dp)
+    ! fitter = lasso(basis=basis, lambda=1.5_dp)
 
     call fitter%fit(x, y)
 
