@@ -42,7 +42,7 @@
 \usepgfplotslibrary{colorbrewer}
 \usepgfplotslibrary{external}
 \tikzset{external/system call={lualatex \tikzexternalcheckshellescape -halt-on-error -interaction=batchmode -jobname "\image" "\texsource"}}
-\tikzexternalize[prefix=tmp/, mode=list and make]
+\tikzexternalize%[prefix=tmp/, mode=list and make]
 \pgfplotsset{cycle list/Dark2}
 \pgfplotsset{compat=1.8}
 \renewcommand{\CancelColor}{\color{red}}
@@ -512,6 +512,8 @@ A complex model (large \(p\)) will minimise the second term, since a complex mod
 The three regression methods and bootstrapping have been implemented in a polymorphic class hierarchy in Fortran.
 An object-oriented approach ensures ease of reuse for later projects, while also simplifying certain parts of the code and organisation.
 For instance, the bootstrapping algorithm can take in a regression method object, which is guaranteed to have methods for prediction and fitting, and not care whether ordinary least squares, Ridge or LASSO regression is used. Fortran was chosen because it combines excellent performance with object-oriented capabilities and a nice syntax for numerical work.
+\tikzexternalenable
+\tikzsetnextfilename{uml}
 \begin{figure}[H]
     \centering
     \begin{tikzpicture}
@@ -558,7 +560,7 @@ For instance, the bootstrapping algorithm can take in a regression method object
     \end{tikzpicture}
     \caption{Class hierarchy of implementation. All \lstinline{real} variables are of kind \lstinline{real64} from \lstinline{iso_fortran_env}.}
 \end{figure}
-
+\tikzexternaldisable
 
 
 
