@@ -477,7 +477,7 @@ Given a data set \(D\), a prediction \(\tilde{y}_i^D\) can be made by any of the
 An expected mean square error can be found by averaging over all datasets \(D\) and all noises \(\vec{\varepsilon}\),
 \begin{alignat}{2}
     E_{D,\varepsilon}\qty[\norm{\vec{y}-\vec{\tilde{y}}_D}_2^2]
-    &= E_{D,\varepsilon}\qty[\norm{\vec{y} - \vec{f} + \vec{f} - \vec{\tilde{y}}_D}_2^2]
+    &= E_{D,\varepsilon}\qty[\norm{\vec{y} - \vec{f} + \vec{f} - \vec{\tilde{y}}_D}_2^2] \label{eq:tmp}
      = E_{D,\varepsilon}\qty[\norm{\vec{y} - \vec{f}}_2^2 + \norm{\vec{f} - \vec{\tilde{y}}_D}_2^2
                              + 2 \qty(\vec{y} - \vec{f})\cdot\qty(\vec{f} - \vec{\tilde{y}}_D)],
     \shortintertext{and using the linearity of the expectation value,}
@@ -501,6 +501,16 @@ The first term, \(\sigma^2\), represents the noise in the generated data, which 
 The second term measures the deviation of the average prediction from the true, noise-free model, which is the (squared) bias.
 Lastly, the third term measures how much the predictions vary and is called the variance.
 A complex model (large \(p\)) will minimise the second term, since a complex model will be better suited to fit the true model, \(f\), while the third term will increase with model complexity since the fitting procedure will be more sensitive to noise in the different data sets.
+
+Unfortunately, the above bias-variance decomposition requires knowledge of the exact model behind the data, \(f\).
+A more computationally practical expression could have been derived by adding and subtracting \(E_D\qty[\vec{\tilde{y}}_D]\) in~\vref{eq:tmp}, which gives the expression
+\begin{equation}
+    E_{D}\qty[\norm{\vec{y}-\vec{\tilde{y}}_D}_2^2]
+    = \norm{\vec{y}- E_D\qty[\vec{\tilde{y}}_D]}_2^2 + E_D\qty[\norm{E_D\qty[\vec{\tilde{y}}_D] - \vec{\tilde{y}}_D}_2^2]
+\end{equation}
+by manipulations analogous to the ones used above. This is another formulation of the bias-variance decomposition which can be used without any information about the underlying model. Dividing by \(N\) gives the average \(\MSE\) on the left-hand side.
+
+
 
 %  _                 _                           _        _   _
 % (_)_ __ ___  _ __ | | ___ _ __ ___   ___ _ __ | |_ __ _| |_(_) ___  _ __

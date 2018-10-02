@@ -11,7 +11,7 @@ program test
     class(regressor), allocatable :: fitter
     class(bootstrapper), allocatable :: bs
     class(polynomial2d), allocatable :: basis(:)
-    integer :: d = 2, N = 900, i
+    integer :: d = 1, N = 1000000, i
     real(dp), allocatable :: x(:,:), y(:), y_pred(:), beta(:), mean_beta(:)
     real(dp) :: mse, r2
 
@@ -38,7 +38,7 @@ program test
     write(*,*) mse, r2
 
     bs = bootstrapper(fitter)
-    call bs%bootstrap(x, y, 1000, 0.2d0)
+    call bs%bootstrap(x, y, 100, 0.4d0)
     write(*,*) bs%mean_beta
     write(*,*) bs%mean_MSE, bs%final_R2
     mean_beta = bs%mean_beta
@@ -46,7 +46,7 @@ program test
 
     x = random_meshgrid(nint(sqrt(1.0*N)), "test")
 
-    y = 1 - 2*x(:,1) + 0*x(:,1)**2 + 3.5*x(:,2) + 4*x(:,1)*x(:,2) + 5*x(:,2)**2
+    y = 1 - 2*x(:,1) + 0*x(:,1)**2 + 3.5*x(:,2) + 4*x(:,1)*x(:,2) + 5*x(:,2)**2 + 5*sin(x(:,1)*x(:,2))
     call add_noise(y, sigma=0.5d0)
 
     fitter%beta = beta
