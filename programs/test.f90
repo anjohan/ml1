@@ -11,8 +11,8 @@ program test
     class(regressor), allocatable :: fitter
     class(bootstrapper), allocatable :: bs
     class(polynomial2d), allocatable :: basis(:)
-    integer :: d = 2, N = 16, i
-    real(dp), allocatable :: x(:,:), y(:), y_pred(:)
+    integer :: d = 2, N = 900, i
+    real(dp), allocatable :: x(:,:), y(:), y_pred(:), beta(:), mean_beta(:)
     real(dp) :: mse, r2
 
     allocate(x(N,2), y(N), y_pred(N))
@@ -20,7 +20,7 @@ program test
     x = random_meshgrid(nint(sqrt(1.0*N)), "test")
 
     y = 1 - 2*x(:,1) + 0*x(:,1)**2 + 3.5*x(:,2) + 4*x(:,1)*x(:,2) + 5*x(:,2)**2
-    call add_noise(y, sigma=1.5d0)
+    call add_noise(y, sigma=0.5d0)
 
     call create_basis(basis, d)
     ! fitter = ols(basis=basis)
@@ -28,6 +28,7 @@ program test
     ! fitter = lasso(basis=basis, lambda=1.5_dp)
 
     call fitter%fit(x, y)
+    beta = fitter%beta
 
     write(*,*) fitter%beta
 
@@ -37,6 +38,28 @@ program test
     write(*,*) mse, r2
 
     bs = bootstrapper(fitter)
-    call bs%bootstrap(x, y, 1000)
-    write(*,*) sum(bs%betas, dim=2)/size(bs%betas, dim=2)
+    call bs%bootstrap(x, y, 1000, 0.2d0)
+    write(*,*) bs%mean_beta
+    write(*,*) bs%mean_MSE, bs%final_R2
+    mean_beta = bs%mean_beta
+    write(*,*) bs%mean_MSE, bs%bias+bs%variance, bs%bias, bs%variance
+
+    x = random_meshgrid(nint(sqrt(1.0*N)), "test")
+
+    y = 1 - 2*x(:,1) + 0*x(:,1)**2 + 3.5*x(:,2) + 4*x(:,1)*x(:,2) + 5*x(:,2)**2
+    call add_noise(y, sigma=0.5d0)
+
+    fitter%beta = beta
+    call fitter%predict(x, y_pred, y, mse, r2)
+    write(*,*) mse, r2
+
+    fitter%beta = mean_beta
+    call fitter%predict(x, y_pred, y, mse, r2)
+    write(*,*) mse, r2
+
+    ! write(*, "(*(f10.6,f10.6,f10.6,:,/))") (x(i,1:2), y(i), i = 1, N)
+    ! call shuffle(x, y)
+    ! write(*,*)
+    ! write(*, "(*(f10.6,f10.6,f10.6,:,/))") (x(i,1:2), y(i), i = 1, N)
+
 end program

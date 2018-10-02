@@ -493,9 +493,9 @@ This expression can be further decomposed by adding and subtracting the average 
 \begin{alignat}{2}
     E_{D}\qty[\norm{\vec{y}-\vec{\tilde{y}}_D}_2^2]
     &= \sigma^2 + E_{D}\qty[\norm{\vec{f}- E_D\qty[\vec{\tilde{y}}_D] + E_D\qty[\vec{\tilde{y}}_D] - \vec{\tilde{y}}_D}_2^2]\\
-    &= \sigma^2 + E_{D}\qty[\norm{\vec{f}- E_D\qty[\vec{\tilde{y}}_D]}_2^2] + E_D\qty[\norm{E_D\qty[\vec{\tilde{y}}_D] - \vec{\tilde{y}}_D}_2^2]\\
+    &= \sigma^2 + \norm{\vec{f}- E_D\qty[\vec{\tilde{y}}_D]}_2^2 + E_D\qty[\norm{E_D\qty[\vec{\tilde{y}}_D] - \vec{\tilde{y}}_D}_2^2]\\
     &\phantom{{}={}} + 2E_D\qty[\qty(\vec{f}- E_D\qty[\vec{\tilde{y}}_D])\cdot\cancel{\qty(E_D\qty[\vec{\tilde{y}}_D] - \vec{\tilde{y}}_D)}]\\
-    &= \sigma^2 + E_{D}\qty[\norm{\vec{f}- E_D\qty[\vec{\tilde{y}}_D]}_2^2] + E_D\qty[\norm{E_D\qty[\vec{\tilde{y}}_D] - \vec{\tilde{y}}_D}_2^2].
+    &= \sigma^2 + \norm{\vec{f}- E_D\qty[\vec{\tilde{y}}_D]}_2^2 + E_D\qty[\norm{E_D\qty[\vec{\tilde{y}}_D] - \vec{\tilde{y}}_D}_2^2].
 \end{alignat}
 The first term, \(\sigma^2\), represents the noise in the generated data, which no model can overcome.
 The second term measures the deviation of the average prediction from the true, noise-free model, which is the (squared) bias.
@@ -548,7 +548,7 @@ For instance, the bootstrapping algorithm can take in a regression method object
 
             \umlclass[above=1cm of regressor.north, anchor=south]{bootstrapper}{
                 \lstinline{class(regressor) :: fitter}\\
-                \lstinline{real :: x(N, p), y(N), y_predictions(N, num_bootstraps)}\\
+                \lstinline{real :: x(N, :), y(N), y_predictions(N, num_bootstraps)}\\
                 \lstinline{real :: betas(p, num_bootstraps), R2s(num_bootstraps), MSEs(num_bootstraps)}
             }{
                 \lstinline{subroutine bootstrap(real :: x(:,:), y(:); integer :: num_bootstraps)}
