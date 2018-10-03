@@ -115,6 +115,12 @@
 
 \usepackage{tikz-uml}
 
+\pgfplotstableset{
+    every head row/.style={before row=\toprule,after row=\midrule},
+    every last row/.style={after row=\bottomrule},
+    columns/Method/.style={string type, column type=l}
+}
+
 %start
 \begin{document}
 \title{FYS-STK4155: Project 1}
@@ -572,6 +578,54 @@ For instance, the bootstrapping algorithm can take in a regression method object
 \end{figure}
 \tikzexternaldisable
 
+%                    _           _              __
+%   __ _ _ __   __ _| |_   _ ___(_)___    ___  / _|
+%  / _` | '_ \ / _` | | | | / __| / __|  / _ \| |_
+% | (_| | | | | (_| | | |_| \__ \ \__ \ | (_) |  _|
+%  \__,_|_| |_|\__,_|_|\__, |___/_|___/  \___/|_|
+%                 _   _|___/
+%  _ __ ___   ___| |_| |__   ___   __| |___
+% | '_ ` _ \ / _ \ __| '_ \ / _ \ / _` / __|
+% | | | | | |  __/ |_| | | | (_) | (_| \__ \
+% |_| |_| |_|\___|\__|_| |_|\___/ \__,_|___/
+\section{Analysis of methods}
+The accuracy and viability of the methods can be studied on a test case where the underlying function is known.
+Such an example is Franke's function shown in~\vref{fig:franke}.
+
+\subsection{Verification of fitting}
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            height=3in,
+            width=6in,
+            xlabel = {\(i\)},
+            ylabel = {\(\beta_i\)},
+            legend style={draw=none,at={(0.98,0.98)},anchor=north east},
+            legend cell align=left
+        ]
+            \foreach \method in {OLS, Ridge, LASSO}{
+                \addplot+[only marks,mark=o] plot[error bars/y dir=both, error bars/y explicit] table[y error=uncertainty] {data/verification_beta_\method.dat};
+                \addlegendentryexpanded{\method};
+            }
+        \end{axis}
+    \end{tikzpicture}
+\end{figure}
+
+\begin{table}[H]
+    \centering
+    \caption{}
+    \pgfplotstabletypeset[columns/MSE/.style=sci zerofill, fixed]{./data/verification_mse_r2.dat}
+\end{table}
+
+\subsection{Bias and variance}
+According to the bias-variance decomposition, the mean squared error should be equal to the sum of the bias (squared) and the variance.
+The bias and variance are calculated from bootstrapping, and the results show good agreement with the theoretical prediction.
+\begin{table}[H]
+    \centering
+    \caption{Verification of the bias-variance decomposition via bootstrapping.}
+    \pgfplotstabletypeset[sci, sci zerofill]{./data/verification_bias_variance.dat}
+\end{table}
 
 
 
