@@ -1,5 +1,10 @@
-all: report.pdf uml.svg
-	mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. && make
+sources = $(shell find -name "*.f90")
+SHELL := /usr/bin/bash
+
+build: $(sources)
+	mkdir -p build && cd build && cmake .. && make
+
+all: report.pdf uml.svg build
 
 deps = sources.bib figs/franke.pdf
 
