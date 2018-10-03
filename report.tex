@@ -184,7 +184,7 @@ The function to be fitted as verification of the regression methods is the famou
     \begin{alignedat}{2}
         f(x_1,x_2) &= \frac{3}{4}\oldexp(-\frac{(9x_1-2)^2}{4} - \frac{(9x_2-2)^2}{4})
                 + \frac{3}{4}\oldexp(-\frac{(9x_1+1)^2}{49}- \frac{(9x_2+1)}{10} ) \\
-               &+ \frac{1}{2}\oldexp(-\frac{(9x_1-7)^2}{4} - \frac{(9x_2-3)^2}{4})
+               &\phantom{{}={}}+ \frac{1}{2}\oldexp(-\frac{(9x_1-7)^2}{4} - \frac{(9x_2-3)^2}{4})
                 - \frac{1}{5}\oldexp(-(9x_1-4)^2 - (9x_2-7)^2)
     \end{alignedat}\label{eq:franke}
 \end{equation}
@@ -532,9 +532,9 @@ For instance, the bootstrapping algorithm can take in a regression method object
                 \lstinline{real :: X(N, p), beta(p)}\\
                 \lstinline{class(basis_function) :: basis(p)}
             }{
-                \lstinline{subroutine create_X(real :: x_values(N,p))}\\
-                \lstinline{subroutine predict(real :: x(N,p), y(N); optional :: y_exact(N), mse, r2)}\\
-                \lstinline{deferred subroutine fit(real, optional :: x_values(N,p); real :: y_values(N))}
+                \lstinline{subroutine create_X(real :: x_values(N,:))}\\
+                \lstinline{subroutine predict(real :: x(N,:), y(N); optional :: y_exact(N), mse, r2)}\\
+                \lstinline{deferred subroutine fit(real, optional :: x_values(N,:); real :: y_values(N))}
             }
             \umlclass[below = 1cm of regressor.south, anchor=north]{ridge}{
                 \lstinline{real :: lambda}
