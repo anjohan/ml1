@@ -23,7 +23,7 @@ program verification
     N = 10000
     sigma = 0.2
     lambda = 0.001
-    num_bootstraps = 1000
+    num_bootstraps = 100
     test_fraction = 0.2
 
     call create_basis(basis, d)
