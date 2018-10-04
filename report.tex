@@ -456,7 +456,7 @@ Two simple examples are \(k\)-fold cross-validation and bootstrapping.
 The former partitions the data set into \(k\) partitions.
 One of these subsets is chosen as test data on which the performance is measured, while the rest are used as training data.
 This process is the repeated \(k\) times, so that each subset is used once as test data.
-Bootstrapping, on the other hand, repeatedly creates training data sets by randomly selecting \(N\) values from the data set with replacement, while the original data set is used as test data.
+Bootstrapping, on the other hand, repeatedly creates training data sets by randomly selecting \(N\) values from the data set with replacement, while the same, separate data set is used as test data each time.
 
 %  _     _                             _
 % | |__ (_) __ _ ___    __ _ _ __   __| |
@@ -615,7 +615,7 @@ Such an example is Franke's function shown in~\vref{fig:franke}.
 \begin{table}[H]
     \centering
     \caption{}
-    \pgfplotstabletypeset[columns/MSE/.style=sci zerofill, fixed]{./data/verification_mse_r2.dat}
+    \pgfplotstabletypeset[columns/MSE/.style=sci zerofill, fixed,precision=4]{./data/verification_mse_r2.dat}
 \end{table}
 
 \subsection{Bias and variance}

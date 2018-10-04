@@ -20,7 +20,7 @@ program verification
     real(dp), allocatable :: x(:,:), y(:), y_prediction(:), &
                              x_test(:,:), y_test(:), y_test_prediction(:)
     d = 5
-    N = 1600
+    N = 10000
     sigma = 0.2
     lambda = 0.001
     num_bootstraps = 1000
@@ -36,8 +36,7 @@ program verification
          status = "replace")
     write(u_bias_variance, "(a)") "Method MSE Bias+Variance Bias Variance"
     open(newunit=u_mse_r2, file="data/verification_mse_r2.dat", status="replace")
-    write(u_mse_r2,*) "Method {MSE (train)} {$R^2$ (train)} {MSE (test)} {$R^2$ (test)} " &
-                   // "{MSE (test, bootstrapped)} {$R^2$ (test, bootstrapped)}"
+    write(u_mse_r2,*) "Method {MSE (train)} {$R^2$ (train)} {MSE (test)} {$R^2$ (test)}"
 
     allocate(y_prediction(N),x(N,2), y(N))
     x(:,:) = random_meshgrid(nint(sqrt(1.0d0*N)), "data/verification")
@@ -62,7 +61,7 @@ program verification
         write(u_mse_r2, "(a,x,f0.6,x,f0.6,x)", advance="no") method, mse, r2
         call fitter%fit(x_test, y_test)
         call fitter%predict(x, y_test_prediction, y_test, mse, r2)
-        write(u_mse_r2, "(f0.6,x,f0.6,x)", advance="no") mse, r2
+        write(u_mse_r2, "(f0.6,x,f0.6)") mse, r2
 
         open(newunit=u_tmp, file="data/verification_y_" // fitter%method // ".dat", &
              status="replace")
@@ -71,10 +70,6 @@ program verification
 
         bs = bootstrapper(fitter)
         call bs%bootstrap(x, y, num_bootstraps, test_fraction)
-        fitter%beta = bs%mean_beta
-        call fitter%fit(x_test, y_test)
-        call fitter%predict(x, y_test_prediction, y_test, mse, r2)
-        write(u_mse_r2, "(f0.6,x,f0.6,x)") mse, r2
 
         write(u_bias_variance, "(a,x,*(f0.6,:,x))") fitter%method, bs%mean_MSE, &
                                                     bs%bias+bs%variance, bs%bias, &
@@ -84,7 +79,7 @@ program verification
              status="replace")
         write(u_tmp,*) "index beta uncertainty"
         do j = 1, p
-            write(u_tmp,*) j, bs%mean_beta(j), 2*sqrt(bs%beta_variance(i))
+            write(u_tmp,*) j, bs%mean_beta(j), 2*sqrt(bs%beta_variance(j))
         end do
         close(u_tmp)
     end do
