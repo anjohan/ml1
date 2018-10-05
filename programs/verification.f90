@@ -20,8 +20,8 @@ program verification
     real(dp), allocatable :: x(:,:), y(:), y_prediction(:), &
                              x_test(:,:), y_test(:), y_test_prediction(:)
     d = 5
-    N = 10000
-    sigma = 0.2
+    N = 90000
+    sigma = 0.02
     lambda = 0.001
     num_bootstraps = 100
     test_fraction = 0.2
@@ -49,7 +49,7 @@ program verification
     call add_noise(y_test, sigma)
 
     open(newunit=u_tmp, file="data/verification_y_exact.dat", status="replace")
-    write(u_tmp, "(*(f0.6,:,/))") y
+    write(u_tmp, "(*(f0.6,:,','))") y
     close(u_tmp)
 
     do i = 1, 3
@@ -65,7 +65,7 @@ program verification
 
         open(newunit=u_tmp, file="data/verification_y_" // fitter%method // ".dat", &
              status="replace")
-        write(u_tmp, "(*(f0.6,:,/))") y_prediction
+        write(u_tmp, "(*(f0.6,:,','))") y_prediction
         close(u_tmp)
 
         bs = bootstrapper(fitter)
