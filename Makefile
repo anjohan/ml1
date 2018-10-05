@@ -26,7 +26,6 @@ deps = sources.bib figs/franke.pdf data/verification_beta_OLS.dat $(verification
 
 figs/verification_%.pdf: figs/verification.asy data/verification_beta_OLS.dat
 	asy -maxtile "(400,400)" -o $@ - <<< $$(echo 'string method = "$*";'; cat $<)
-	evince $@
 
 data/verification_beta_OLS.dat: build/verification
 	./$<

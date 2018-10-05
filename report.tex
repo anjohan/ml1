@@ -603,15 +603,22 @@ Such an example is Franke's function shown in~\vref{fig:franke}.
 \subsection{Verification of fitting}
 \begin{figure}[H]
     \centering
-    \includegraphics{figs/verification_OLS.pdf}
-\end{figure}
-\begin{figure}[H]
-    \centering
-    \includegraphics{figs/verification_Ridge.pdf}
-\end{figure}
-\begin{figure}[H]
-    \centering
-    \includegraphics{figs/verification_LASSO.pdf}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics{figs/verification_OLS.pdf}
+        \caption{Ordinary least squares regression.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics{figs/verification_Ridge.pdf}
+        \caption{Ridge regression.}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics{figs/verification_LASSO.pdf}
+        \caption{LASSO regression.}
+    \end{subfigure}
+    \caption{Comparison of Franke's function with noise (red) and a fifth degree polynomial approximation (multi-coloured). The colour of the polynomial approximation shows its deviation from Franke's function.~\Vref{fig:betas} shows that the parameters are significantly different for the different methods, yet the resulting approximations are approximately equal.}
 \end{figure}
 
 \begin{figure}[H]
@@ -626,12 +633,12 @@ Such an example is Franke's function shown in~\vref{fig:franke}.
             legend cell align=left
         ]
             \foreach \method in {OLS, Ridge, LASSO}{
-                \addplot+[only marks,mark=o] plot[error bars/y dir=both, error bars/y explicit] table[y error=uncertainty] {data/verification_beta_\method.dat};
+                \addplot+[only marks,mark=o] plot[error bars/y dir=both, error bars/y explicit] table[y error=uncertainty] {data/verification_mean_beta_\method.dat};
                 \addlegendentryexpanded{\method};
             }
         \end{axis}
     \end{tikzpicture}
-    \caption{Comparison of parameters for the different regression methods when applied to Franke's function with noise and using polynomials up to fifth order. The Ridge coefficients are severely suppressed, yet~\vref{table:performance} shows that the fitting quality is virtually the same. LASSO coefficients are expected to be suppressed even further, but this fails due to the use of Newton's method.}
+    \caption{Comparison of parameters for the different regression methods when applied to Franke's function with noise and using polynomials up to fifth order. The Ridge coefficients are severely suppressed, yet~\vref{table:performance} shows that the fitting quality is virtually the same. LASSO coefficients are expected to be suppressed even further, but this fails due to the use of Newton's method.}\label{fig:betas}
 \end{figure}
 
 \begin{table}[H]

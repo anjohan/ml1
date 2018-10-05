@@ -21,7 +21,7 @@ program verification
                              x_test(:,:), y_test(:), y_test_prediction(:)
     d = 5
     N = 2500
-    sigma = 0.02
+    sigma = 0.05
     lambda = 0.001
     num_bootstraps = 100
     test_fraction = 0.2
@@ -71,6 +71,11 @@ program verification
         write(u_tmp, "(*(f0.6,:,','))") y_prediction
         close(u_tmp)
 
+        open(newunit=u_tmp, file="data/verification_beta_" // method // ".dat", &
+             status="replace")
+        write(u_tmp, "(*(f0.6,:,','))") fitter%beta
+        close(u_tmp)
+
         bs = bootstrapper(fitter)
         call bs%bootstrap(x, y, num_bootstraps, test_fraction)
 
@@ -78,7 +83,7 @@ program verification
                                                     bs%bias+bs%variance, bs%bias, &
                                                     bs%variance
 
-        open(newunit=u_tmp, file="data/verification_beta_" // fitter%method // ".dat", &
+        open(newunit=u_tmp, file="data/verification_mean_beta_" // fitter%method // ".dat", &
              status="replace")
         write(u_tmp,*) "index beta uncertainty"
         do j = 1, p
