@@ -1,4 +1,4 @@
-string method = "OLS";
+//string method = "OLS";
 
 settings.outformat = "pdf";
 settings.prc = false;
@@ -33,13 +33,13 @@ triple approx(pair ij){
     return (x1[i], x2[j], y[i*n+j]);
 }
 
-write(m, n);
-write(x1);
-write(x2);
-write(y);
+//write(m, n);
+//write(x1);
+//write(x2);
+//write(y);
 
-surface graf = surface(exact, (0,0), (m-1,n-1),nu=m,nv=n,Spline);
-draw(graf,surfacepen=material(blue+0.2*white+opacity(myopacity)));
-surface graf = surface(approx, (0,0), (m-1,n-1),nu=m,nv=n,Spline);
-draw(graf,surfacepen=material(red+0.2*white+opacity(myopacity)));
-//axes3("$x_1$","$x_2$","$y$",min=(-0.2,-0.2,-0.2),max=(1.2,1.2,1.2),arrow=Arrow3());
+surface graf = surface(exact, (0,0), (m-1,n-1),nu=m,nv=n);
+draw(graf,surfacepen=material(blue+0.2*white+opacity(0.2)));
+surface graf = surface(approx, (0,0), (m-1,n-1),nu=m,nv=n);
+draw(graf,surfacepen=material(red+0.2*white+opacity(0.6)));
+axes3("$x_1$","$x_2$","$y$",min=(-0.2,-0.2,-0.2),max=(1.2,1.2,1.2),arrow=Arrow3());

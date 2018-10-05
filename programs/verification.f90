@@ -15,12 +15,12 @@ program verification
 
     integer :: d, p, N, num_bootstraps, i, j, u_bias_variance, u_tmp, u_mse_r2
     real(dp) :: test_fraction, lambda, sigma, mse, r2
-    character(len=:), allocatable :: method
+    character(len=:), allocatable :: method, outfile
 
     real(dp), allocatable :: x(:,:), y(:), y_prediction(:), &
                              x_test(:,:), y_test(:), y_test_prediction(:)
     d = 5
-    N = 90000
+    N = 2500
     sigma = 0.02
     lambda = 0.001
     num_bootstraps = 100
@@ -52,9 +52,10 @@ program verification
     write(u_tmp, "(*(f0.6,:,','))") y
     close(u_tmp)
 
-    do i = 1, 3
+    do i = 3, 1, -1
         fitter = fitters(i)%element
         method = fitter%method
+        write(*,*) method
 
         call fitter%fit(x, y)
         call fitter%predict(x, y_prediction, y, mse, r2)
@@ -63,8 +64,10 @@ program verification
         call fitter%predict(x, y_test_prediction, y_test, mse, r2)
         write(u_mse_r2, "(f0.6,x,f0.6)") mse, r2
 
-        open(newunit=u_tmp, file="data/verification_y_" // fitter%method // ".dat", &
-             status="replace")
+        write(*,*) method
+        outfile = "data/verification_y_" // method // ".dat"
+
+        open(newunit=u_tmp, file=outfile, status="replace")
         write(u_tmp, "(*(f0.6,:,','))") y_prediction
         close(u_tmp)
 
