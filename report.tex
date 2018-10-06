@@ -632,10 +632,12 @@ Such an example is Franke's function shown in~\vref{fig:franke}.
             legend style={draw=none,at={(0.98,0.98)},anchor=north east},
             legend cell align=left
         ]
-            \foreach \method in {OLS, Ridge, LASSO}{
+            \foreach \method in {OLS, Ridge}{
                 \addplot+[only marks,mark=o] plot[error bars/y dir=both, error bars/y explicit] table[y error=uncertainty] {data/verification_mean_beta_\method.dat};
                 \addlegendentryexpanded{\method};
             }
+            \addplot+[only marks,mark=o] plot[error bars/y dir=both, error bars/y explicit] table[y error=uncertainty] {data/verification_mean_beta_sklearn.dat};
+            \addlegendentryexpanded{LASSO (scikit-learn)};
         \end{axis}
     \end{tikzpicture}
     \caption{Comparison of parameters for the different regression methods when applied to Franke's function with noise and using polynomials up to fifth order. The Ridge coefficients are severely suppressed, yet~\vref{table:performance} shows that the fitting quality is virtually the same. LASSO coefficients are expected to be suppressed even further, but this fails due to the use of Newton's method.}\label{fig:betas}

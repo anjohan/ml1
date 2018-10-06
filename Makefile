@@ -13,7 +13,7 @@ build: $(sources)
 
 .PRECIOUS: $(verification_figs)
 
-deps = sources.bib figs/franke.pdf data/verification_beta_OLS.dat $(verification_figs)
+deps = sources.bib figs/franke.pdf data/verification_beta_OLS.dat data/verification_mean_beta_sklearn.dat $(verification_figs)
 
 %.pdf: %.tex $(deps) lib/lasso.f90
 	latexmk -pdflua -time -shell-escape $*
@@ -29,6 +29,9 @@ figs/verification_%.pdf: figs/verification.asy data/verification_beta_OLS.dat
 
 data/verification_beta_OLS.dat: build/verification
 	./$<
+
+data/verification_mean_beta_sklearn.dat: programs/lasso.py
+	python $<
 
 
 clean:

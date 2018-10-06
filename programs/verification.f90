@@ -19,12 +19,12 @@ program verification
 
     real(dp), allocatable :: x(:,:), y(:), y_prediction(:), &
                              x_test(:,:), y_test(:), y_test_prediction(:)
-    d = 6
-    N = 10000
-    sigma = 0.10
+    d = 5
+    N = 90000
+    sigma = 0.05
     lambda = 0.001
-    num_bootstraps = 1000
-    test_fraction = 0.2
+    num_bootstraps = 200
+    test_fraction = 0.5
 
     call create_basis(basis, d)
     p = size(basis)
