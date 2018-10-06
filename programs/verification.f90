@@ -19,11 +19,11 @@ program verification
 
     real(dp), allocatable :: x(:,:), y(:), y_prediction(:), &
                              x_test(:,:), y_test(:), y_test_prediction(:)
-    d = 5
-    N = 2500
-    sigma = 0.05
+    d = 6
+    N = 10000
+    sigma = 0.10
     lambda = 0.001
-    num_bootstraps = 100
+    num_bootstraps = 1000
     test_fraction = 0.2
 
     call create_basis(basis, d)
@@ -55,7 +55,6 @@ program verification
     do i = 3, 1, -1
         fitter = fitters(i)%element
         method = fitter%method
-        write(*,*) method
 
         call fitter%fit(x, y)
         call fitter%predict(x, y_prediction, y, mse, r2)
@@ -64,7 +63,6 @@ program verification
         call fitter%predict(x, y_test_prediction, y_test, mse, r2)
         write(u_mse_r2, "(f0.6,x,f0.6)") mse, r2
 
-        write(*,*) method
         outfile = "data/verification_y_" // method // ".dat"
 
         open(newunit=u_tmp, file=outfile, status="replace")
