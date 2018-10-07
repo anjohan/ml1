@@ -464,7 +464,8 @@ Two simple examples are \(k\)-fold cross-validation and bootstrapping.
 The former partitions the data set into \(k\) partitions.
 One of these subsets is chosen as test data on which the performance is measured, while the rest are used as training data.
 This process is the repeated \(k\) times, so that each subset is used once as test data.
-Bootstrapping, on the other hand, repeatedly creates training data sets by randomly selecting \(N\) values from the data set with replacement, while the same, separate data set is used as test data each time.
+Bootstrapping, on the other hand, repeatedly creates training data sets by randomly selecting \(N\) values from the data set with replacement, while the same, separate data set is used as test data each time, as illustrated by the snippet below.
+\lstinputlisting[linerange={bootstrapstart-bootstrapend}]{lib/bootstrap.f90}
 
 %  _     _                             _
 % | |__ (_) __ _ ___    __ _ _ __   __| |
@@ -600,7 +601,7 @@ For instance, the bootstrapping algorithm can take in a regression method object
 The accuracy and viability of the methods can be studied on a test case where the underlying function is known.
 Such an example is Franke's function shown in~\vref{fig:franke}.
 
-\subsection{Verification of fitting}
+\subsection{Verification of theory and fitting}
 \begin{figure}[H]
     \centering
     \begin{subfigure}{\textwidth}
@@ -640,7 +641,7 @@ Such an example is Franke's function shown in~\vref{fig:franke}.
             \addlegendentryexpanded{LASSO (scikit-learn)};
         \end{axis}
     \end{tikzpicture}
-    \caption{Comparison of parameters for the different regression methods when applied to Franke's function with noise and using polynomials up to fifth order. The Ridge coefficients are severely suppressed, yet~\vref{table:performance} shows that the fitting quality is virtually the same. LASSO coefficients are expected to be suppressed even further, but this fails due to the use of Newton's method.}\label{fig:betas}
+    \caption{Comparison of parameters for the different regression methods when applied to Franke's function with noise and using polynomials up to fifth order. The Ridge coefficients are severely suppressed, yet~\vref{table:performance} shows that the fitting quality is virtually the same. LASSO regression (using scikit-learn, since my Newton minimiser won't f**king converge) gives a sparse solution, i.e.\ some \(\beta_j\)s are exactly zero.}\label{fig:betas}
 \end{figure}
 
 \begin{table}[H]
@@ -657,6 +658,36 @@ The bias and variance are calculated from bootstrapping, and the results show go
     \caption{Verification of the bias-variance decomposition via bootstrapping for fitting of Franke's function with noise. As expected, the sum of the bias and the variance is equal to the mean squared error.}
     \pgfplotstabletypeset[sci, sci zerofill, precision=3]{./data/verification_bias_variance.dat}
 \end{table}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[thick,
+            height=3in,
+            width=6in,
+            ymode=log,
+            grid,
+            xlabel = {\(d\)},
+            ylabel = {Error},
+            legend style={draw=none,at={(0.98,0.02)},anchor=south east},
+            legend cell align=left
+        ]
+            \addplot+ table[y index=1] {data/complexity.dat};
+            \addlegendentry{MSE (OLS)};
+            \addplot+ table[y index=2] {data/complexity.dat};
+            \addlegendentry{Bias (OLS)};
+            \addplot+ table[y index=3] {data/complexity.dat};
+            \addlegendentry{Variance (OLS)};
+            \addplot+ table[y index=4] {data/complexity.dat};
+            \addlegendentry{MSE (Ridge)};
+            \addplot+ table[y index=5] {data/complexity.dat};
+            \addlegendentry{Bias (Ridge)};
+            \addplot+ table[y index=6] {data/complexity.dat};
+            \addlegendentry{Variance (Ridge)};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Visualisation of bias-variance trade-off. The mean squared error for test data is expected to first decrease with increasing complexity as the bias decreases towards \(\sigma^2\), and then increase as the variance becomes dominant. Additionally, the regularisation of the Ridge regressor is intended to reduce the variance even with a high polynomial degree.}\label{fig:biasvar}
+\end{figure}
 
 
 

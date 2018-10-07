@@ -20,11 +20,11 @@ program verification
     real(dp), allocatable :: x(:,:), y(:), y_prediction(:), &
                              x_test(:,:), y_test(:), y_test_prediction(:)
     d = 5
-    N = 90000
+    N = 625
     sigma = 0.05
     lambda = 0.001
-    num_bootstraps = 200
-    test_fraction = 0.5
+    num_bootstraps = 1000
+    test_fraction = 0.4
 
     call create_basis(basis, d)
     p = size(basis)
@@ -58,7 +58,7 @@ program verification
 
         call fitter%fit(x, y)
         call fitter%predict(x, y_prediction, y, mse, r2)
-        write(u_mse_r2, "(a,x,f0.6,x,f0.6,x)", advance="no") method, mse, r2
+        write(u_mse_r2, "('{',a,'}',x,f0.6,x,f0.6,x)", advance="no") method, mse, r2
         call fitter%fit(x_test, y_test)
         call fitter%predict(x, y_test_prediction, y_test, mse, r2)
         write(u_mse_r2, "(f0.6,x,f0.6)") mse, r2
@@ -77,7 +77,7 @@ program verification
         bs = bootstrapper(fitter)
         call bs%bootstrap(x, y, num_bootstraps, test_fraction)
 
-        write(u_bias_variance, "(a,x,*(f0.6,:,x))") fitter%method, bs%mean_MSE, &
+        write(u_bias_variance, "('{',a,'}',x,*(f0.6,:,x))") fitter%method, bs%mean_MSE, &
                                                     bs%bias+bs%variance, bs%bias, &
                                                     bs%variance
 

@@ -29,20 +29,16 @@ p = X.shape[1]
 
 N_test = int(round(test_fraction * N))
 N_train = N - N_test
-y_test = y[:N_test]
 y_train = y[N_test:]
-X_test = X[:N_test, :]
 X_train = X[N_test:, :]
 
 betas = np.zeros((p, num_bootstraps))
-y_predictions = np.zeros((N_test, num_bootstraps))
 
 for i in tqdm(range(num_bootstraps)):
     indices = np.random.randint(0, N_train, N_train)
     X_selection = X_train[indices, :]
     y_selection = y_train[indices, :]
-    y_predictions[:, i] = regressor.fit(X_selection,
-                                        y_selection).predict(X_test)
+    regressor.fit(X_selection, y_selection)
     betas[:, i] = regressor.coef_
 
 mean_beta = np.sum(betas, axis=1) / num_bootstraps
