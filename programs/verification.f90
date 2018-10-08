@@ -20,8 +20,8 @@ program verification
     real(dp), allocatable :: x(:,:), y(:), y_prediction(:), &
                              x_test(:,:), y_test(:), y_test_prediction(:)
     d = 5
-    N = 625
-    sigma = 0.05
+    N = 10000
+    sigma = 0.1
     lambda = 0.001
     num_bootstraps = 1000
     test_fraction = 0.4
@@ -32,10 +32,10 @@ program verification
                regressor_container(ridge(lambda, basis)), &
                regressor_container(lasso(lambda, basis))]
 
-    open(newunit=u_bias_variance, file="data/verification_bias_variance.dat", &
+    open(newunit=u_bias_variance, file="data/verification_bias_variance_ols_ridge.dat", &
          status = "replace")
     write(u_bias_variance, "(a)") "Method MSE Bias+Variance Bias Variance"
-    open(newunit=u_mse_r2, file="data/verification_mse_r2.dat", status="replace")
+    open(newunit=u_mse_r2, file="data/verification_mse_r2_ols_ridge.dat", status="replace")
     write(u_mse_r2,*) "Method {MSE (train)} {$R^2$ (train)} {MSE (test)} {$R^2$ (test)}"
 
     allocate(y_prediction(N),x(N,2), y(N))
@@ -52,14 +52,14 @@ program verification
     write(u_tmp, "(*(f0.6,:,','))") y
     close(u_tmp)
 
-    do i = 3, 1, -1
+    do i = 2, 1, -1
         fitter = fitters(i)%element
         method = fitter%method
 
         call fitter%fit(x, y)
         call fitter%predict(x, y_prediction, y, mse, r2)
         write(u_mse_r2, "('{',a,'}',x,f0.6,x,f0.6,x)", advance="no") method, mse, r2
-        call fitter%fit(x_test, y_test)
+        !call fitter%fit(x_test, y_test)
         call fitter%predict(x, y_test_prediction, y_test, mse, r2)
         write(u_mse_r2, "(f0.6,x,f0.6)") mse, r2
 

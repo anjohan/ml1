@@ -277,7 +277,7 @@ which can be rewritten on vector form as
 \end{equation}
 Setting \(\nabla Q = \vec{0}\) gives~\vref{eq:olsnormal}.
 
-Ordinary least squares has been implemented by calling \lstinline{dgels}, which uses a QR-factorisation.
+Ordinary least squares has been implemented by calling \lstinline{dgelss}, which uses a singular value decomposition to prevent numerical instabilities.
 
 %      _     _
 % _ __(_) __| | __ _  ___
@@ -614,18 +614,18 @@ Such an example is Franke's function shown in~\vref{fig:franke}.
         \includegraphics{figs/verification_Ridge.pdf}
         \caption{Ridge regression.}
     \end{subfigure}
-    \begin{subfigure}{\textwidth}
-        \centering
-        \includegraphics{figs/verification_LASSO.pdf}
-        \caption{LASSO regression.}
-    \end{subfigure}
+%    \begin{subfigure}{\textwidth}
+%        \centering
+%        \includegraphics{figs/verification_LASSO.pdf}
+%        \caption{LASSO regression.}
+%    \end{subfigure}
     \caption{Comparison of Franke's function with noise (red) and a fifth degree polynomial approximation (multi-coloured). The colour of the polynomial approximation shows its deviation from Franke's function.~\Vref{fig:betas} shows that the parameters are significantly different for the different methods, yet the resulting approximations are approximately equal.}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \begin{tikzpicture}
-        \begin{axis}[
+        \begin{axis}[thick,
             height=3in,
             width=6in,
             xlabel = {\(i\)},
@@ -655,7 +655,7 @@ According to the bias-variance decomposition, the mean squared error should be e
 The bias and variance are calculated from bootstrapping, and the results show good agreement with the theoretical prediction.
 \begin{table}[H]
     \centering
-    \caption{Verification of the bias-variance decomposition via bootstrapping for fitting of Franke's function with noise. As expected, the sum of the bias and the variance is equal to the mean squared error.}
+    \caption{Verification of the bias-variance decomposition via bootstrapping for fitting of Franke's function with noise. As expected, the sum of the bias and the variance is equal to the mean squared error, and the regularised methods perform better on test data than ordinary least squares.}
     \pgfplotstabletypeset[sci, sci zerofill, precision=3]{./data/verification_bias_variance.dat}
 \end{table}
 
@@ -669,7 +669,7 @@ The bias and variance are calculated from bootstrapping, and the results show go
             grid,
             xlabel = {\(d\)},
             ylabel = {Error},
-            legend style={draw=none,at={(0.98,0.02)},anchor=south east},
+            legend style={draw=none,at={(0.02,0.50)},anchor=west},
             legend cell align=left
         ]
             \addplot+ table[y index=1] {data/complexity.dat};
@@ -688,6 +688,29 @@ The bias and variance are calculated from bootstrapping, and the results show go
     \end{tikzpicture}
     \caption{Visualisation of bias-variance trade-off. The mean squared error for test data is expected to first decrease with increasing complexity as the bias decreases towards \(\sigma^2\), and then increase as the variance becomes dominant. Additionally, the regularisation of the Ridge regressor is intended to reduce the variance even with a high polynomial degree.}\label{fig:biasvar}
 \end{figure}
+
+\subsection{Effect of noise}
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            thick,
+            width=6in,
+            height=3in,
+            xlabel = {\(\sigma\)},
+            ylabel = {\(R^2\)},
+            legend cell align=left,
+            legend style={draw=none,at={(0.98,0.98)},anchor=north east},
+            grid
+        ]
+            \addplot+ table[y index=1] {data/noise.dat};
+            \addlegendentry{Training data};
+            \addplot+ table[y index=2] {data/noise.dat};
+            \addlegendentry{Test data};
+        \end{axis}
+    \end{tikzpicture}
+\end{figure}
+
 
 
 

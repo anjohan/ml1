@@ -13,7 +13,7 @@ build: $(sources)
 
 .PRECIOUS: $(verification_figs)
 
-deps = sources.bib figs/franke.pdf data/verification_beta_OLS.dat data/verification_mean_beta_sklearn.dat $(verification_figs) data/complexity.dat
+deps = sources.bib figs/franke.pdf data/verification_beta_OLS.dat data/verification_mean_beta_sklearn.dat $(verification_figs) data/complexity.dat data/verification_bias_variance.dat data/verification_mse_r2.dat data/noise.dat
 
 %.pdf: %.tex $(deps) lib/lasso.f90 lib/bootstrap.f90
 	latexmk -pdflua -time -shell-escape $*
@@ -36,6 +36,13 @@ data/verification_mean_beta_sklearn.dat: programs/lasso.py
 data/%.dat: build/%
 	./$<
 
+data/verification_bias_variance.dat: data/verification_mean_beta_sklearn.dat data/verification_beta_OLS.dat
+	cp data/verification_bias_variance_ols_ridge.dat $@
+	cat data/verification_bias_variance_lasso.dat >> $@
+
+data/verification_mse_r2.dat: data/verification_mean_beta_sklearn.dat data/verification_beta_OLS.dat
+	cp data/verification_mse_r2_ols_ridge.dat $@
+	cat data/verification_mse_r2_lasso.dat >> $@
 
 clean:
 	latexmk -c

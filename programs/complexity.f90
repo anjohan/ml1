@@ -18,34 +18,35 @@ program complexity
     real(dp) :: sigma, lambda, test_fraction
     real(dp), allocatable :: x(:,:), y(:)
 
-    N = 10000
+    N = 90000
     num_bootstraps = 1000
-    sigma = 0.4d0
+    sigma = 0.3d0
     lambda = 0.001d0
     test_fraction = 0.4
 
-    d = [(i, i = 0, 8)]
+    d = [(i, i = 0, 5)]
 
     x = random_meshgrid(nint(sqrt(1.0d0*N)))
-    y = franke(x)
+    y = 3*x(:,1)**2*x(:,2) + 2 + x(:,1)*x(:,2)**3 + x(:,1)**10*x(:,2)**4
+    !y = franke(x)
     call add_noise(y, sigma)
 
     open(newunit=u, file="data/complexity.dat", status="replace")
     write(u, *) "d mse(ols) bias(ols) var(ols) mse(ridge) bias(ridge) var(ridge)"
 
     do i = 1, size(d)
+        write(*,*) "d = ", d(i)
+
         call create_basis(basis, d(i))
         fitter = ols(basis)
         bs = bootstrapper(fitter)
         call bs%bootstrap(x, y, num_bootstraps, test_fraction)
-        write(*,*) bs%final_R2
 
         write(u, fmt="(i0,*(:,x,f0.8))", advance="no") d(i), bs%mean_MSE, bs%bias, bs%variance
 
         fitter = ridge(lambda, basis)
         bs = bootstrapper(fitter)
         call bs%bootstrap(x, y, num_bootstraps, test_fraction)
-        write(*,*) bs%final_R2
 
         write(u, fmt="(*(:,x,f0.8))") bs%mean_MSE, bs%bias, bs%variance
     end do
