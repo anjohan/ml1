@@ -28,7 +28,7 @@ program regularisation
     y_test = franke(x_test)
     call add_noise(y_test, sigma)
 
-    lambda = [(10**(-8+i*8.0d0/(num_lambda-1)), i = 0, num_lambda-1)]
+    lambda = [(10**(-8+i*9.0d0/(num_lambda-1)), i = 0, num_lambda-1)]
 
     call create_basis(basis, d)
     p = size(basis)

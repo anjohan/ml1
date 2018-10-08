@@ -2,8 +2,8 @@
 
 settings.outformat = "pdf";
 settings.prc = false;
-settings.render = 2;
-size(10cm,6cm,IgnoreAspect);
+settings.render = 8;
+size(12cm,8cm,IgnoreAspect);
 import three;
 import graph3;
 import palette;
