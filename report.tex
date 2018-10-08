@@ -628,6 +628,7 @@ Such an example is Franke's function shown in~\vref{fig:franke}.
         \begin{axis}[thick,
             height=3in,
             width=6in,
+            grid,
             xlabel = {\(i\)},
             ylabel = {\(\beta_i\)},
             legend style={draw=none,at={(0.98,0.98)},anchor=north east},
@@ -641,12 +642,12 @@ Such an example is Franke's function shown in~\vref{fig:franke}.
             \addlegendentryexpanded{LASSO (scikit-learn)};
         \end{axis}
     \end{tikzpicture}
-    \caption{Comparison of parameters for the different regression methods when applied to Franke's function with noise and using polynomials up to fifth order. The Ridge coefficients are severely suppressed, yet~\vref{table:performance} shows that the fitting quality is virtually the same. LASSO regression (using scikit-learn, since my Newton minimiser won't f**king converge) gives a sparse solution, i.e.\ some \(\beta_j\)s are exactly zero.}\label{fig:betas}
+    \caption{Comparison of parameters for the different regression methods when applied to Franke's function with noise and using polynomials up to fifth order. The Ridge coefficients are severely suppressed, yet~\vref{table:performance} shows that the fitting quality is virtually the same. LASSO regression (using scikit-learn, since my Newton minimiser won't f**king converge) gives a sparse solution, i.e.\ some \(\beta_j\)s are exactly zero. Confidence intervals are estimated as \(\beta_j \pm 2\sigma_{\beta_j}\), where \(\sigma_{\beta_j}\) is the standard deviation of \(\beta_j\) calculated from bootstrapping.}\label{fig:betas}
 \end{figure}
 
 \begin{table}[H]
     \centering
-    \caption{Measure of performance on training and test data sampled from Franke's function with noise for the different methods. Ordinary least squares should, by design, perform best on the training data, while Ridge and LASSO are expected to perform better on test data not used in the fitting due to their regularisation parameter.}\label{table:performance}
+    \caption{Measure of performance on training and test data sampled from Franke's function with noise for the different methods. Ordinary least squares should, by design, perform best on the training data, while Ridge and LASSO are expected to perform better on test data not used in the fitting due to their regularisation parameter. The advantage of regularised methods is amplified when a smaller number of points is used (\(\num{10000}\) points were used here for plotting purposes). See also~\vref{tab:biasvar}, which shows the average error on test data for many bootstrap samples.}\label{table:performance}
     \pgfplotstabletypeset[zerofill, fixed,precision=4]{./data/verification_mse_r2.dat}
 \end{table}
 
@@ -655,7 +656,7 @@ According to the bias-variance decomposition, the mean squared error should be e
 The bias and variance are calculated from bootstrapping, and the results show good agreement with the theoretical prediction.
 \begin{table}[H]
     \centering
-    \caption{Verification of the bias-variance decomposition via bootstrapping for fitting of Franke's function with noise. As expected, the sum of the bias and the variance is equal to the mean squared error, and the regularised methods perform better on test data than ordinary least squares.}
+    \caption{Verification of the bias-variance decomposition via bootstrapping for fitting of Franke's function with noise. As expected, the sum of the bias and the variance is equal to the mean squared error, and the regularised methods perform better on test data than ordinary least squares.}\label{tab:biasvar}
     \pgfplotstabletypeset[sci, sci zerofill, precision=3]{./data/verification_bias_variance.dat}
 \end{table}
 
@@ -667,7 +668,8 @@ The bias and variance are calculated from bootstrapping, and the results show go
             width=6in,
             ymode=log,
             grid,
-            xlabel = {\(d\)},
+            xtick distance=1,
+            xlabel = {Polynomial degree \(d\)},
             ylabel = {Error},
             legend style={draw=none,at={(0.02,0.50)},anchor=west},
             legend cell align=left
@@ -686,7 +688,7 @@ The bias and variance are calculated from bootstrapping, and the results show go
             \addlegendentry{Variance (Ridge)};
         \end{axis}
     \end{tikzpicture}
-    \caption{Visualisation of bias-variance trade-off. The mean squared error for test data is expected to first decrease with increasing complexity as the bias decreases towards \(\sigma^2\), and then increase as the variance becomes dominant. Additionally, the regularisation of the Ridge regressor is intended to reduce the variance even with a high polynomial degree.}\label{fig:biasvar}
+    \caption{Visualisation of bias-variance trade-off. The mean squared error for test data is expected to first decrease with increasing complexity as the bias decreases towards \(\sigma^2\), and then increase as the variance becomes dominant. Additionally, the regularisation of the Ridge regressor is intended to keep the variance moderate even with a high polynomial degree.}\label{fig:biasvar}
 \end{figure}
 
 \subsection{Effect of noise}
@@ -709,6 +711,81 @@ The bias and variance are calculated from bootstrapping, and the results show go
             \addlegendentry{Test data};
         \end{axis}
     \end{tikzpicture}
+    \caption{\(R^2\) score of Ridge regression with \(\lambda=0.001\) when normally distributed noise with a standard deviation of \(\sigma\) is added to Franke's function. \(400\) data points are used, and the performance is clearly better for the training data to which the model was fitted than novel test data. A higher number of data points reduces the overfitting, so that the prediction and its performance are less affected by noise.}
+\end{figure}
+
+\subsection{Effect of regularisation}
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            thick,
+            width=6in,
+            height=3in,
+            xmode=log,
+            xlabel = {\(\lambda\)},
+            ylabel = {\(R^2\)},
+            legend cell align=left,
+            legend style={draw=none,at={(0.02,0.70)},anchor=west},
+            grid
+        ]
+            \addplot+ table[y index=1] {data/r2_lambda.dat};
+            \addlegendentry{Training data};
+            \addplot+ table[y index=2] {data/r2_lambda.dat};
+            \addlegendentry{Test data};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{\(R^2\)-score as a function of the regularisation parameter \(\lambda\) for Ridge regression. \(\lambda=0\) would correspond to ordinary least squares. While ordinary least squares by construction give the best performance on training data, the results show that a smart choice of \(\lambda\) can give better predicting performance since the regularisation reduces overfitting and variance.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            thick,
+            width=6in,
+            height=3in,
+            xmode=log,
+            ymode=log,
+            xlabel = {\(\lambda\)},
+            ylabel = {Error},
+            legend cell align=left,
+            legend style={draw=none,at={(0.98,0.98)},anchor=north east},
+            grid
+        ]
+            \addplot+ table[y index=1] {data/bivar_lambda.dat};
+            \addlegendentry{MSE};
+            \addplot+ table[y index=2] {data/bivar_lambda.dat};
+            \addlegendentry{Bias};
+            \addplot+ table[y index=3] {data/bivar_lambda.dat};
+            \addlegendentry{Variance};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Error, bias and variance as a function of the regularisation parameter \(\lambda\) for Ridge regression, calculated from bootstrapping. The variance, which is the error due to overfitting of the noise, gradually decreases as \(\lambda\) increases, while a too large \(\lambda\) causes the bias to increase because the severe suppression of the \(\beta_j\) coefficients makes it impossible for the polynomial expansion to approximate the model function (Franke's function).}
+\end{figure}
+
+
+\pgfplotstableread[skip first n=1]{data/beta_lambda.dat}{\betatable}
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            thick,
+            width=6in,
+            height=3in,
+            xmode=log,
+            xlabel = {\(\lambda\)},
+            ylabel = {\(\beta_i\)},
+            legend cell align=left,
+            legend style={draw=none,at={(0.98,0.98)},anchor=north east},
+            grid
+        ]
+            \foreach \index in {1,3,...,44}{
+                \addplot+ table[y index=\index, y error index={\index+1}] {\betatable};
+            }
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Coefficients \(\beta_j\) as a function of the regularisation parameter \(\lambda\) for Ridge regression. Regularisation suppresses the coefficients due to the penalising \(\lambda\|\vec{\beta}\|_2^2\) term in the cost function, in order to achieve better prediction abilities due to lower variance and effect of noise. LASSO regression would set many of the coefficients to exactly zero, ref.~\vref{fig:betas}.}
 \end{figure}
 
 

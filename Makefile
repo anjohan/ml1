@@ -13,7 +13,7 @@ build: $(sources)
 
 .PRECIOUS: $(verification_figs)
 
-deps = sources.bib figs/franke.pdf data/verification_beta_OLS.dat data/verification_mean_beta_sklearn.dat $(verification_figs) data/complexity.dat data/verification_bias_variance.dat data/verification_mse_r2.dat data/noise.dat
+deps = sources.bib figs/franke.pdf data/verification_beta_OLS.dat data/verification_mean_beta_sklearn.dat $(verification_figs) data/complexity.dat data/verification_bias_variance.dat data/verification_mse_r2.dat data/noise.dat data/r2_lambda.dat geography.tif
 
 %.pdf: %.tex $(deps) lib/lasso.f90 lib/bootstrap.f90
 	latexmk -pdflua -time -shell-escape $*
@@ -43,6 +43,11 @@ data/verification_bias_variance.dat: data/verification_mean_beta_sklearn.dat dat
 data/verification_mse_r2.dat: data/verification_mean_beta_sklearn.dat data/verification_beta_OLS.dat
 	cp data/verification_mse_r2_ols_ridge.dat $@
 	cat data/verification_mse_r2_lasso.dat >> $@
+
+data/r2_lambda.dat: build/regularisation
+	./$<
+geography.tif:
+	wget -O geography.tif https://github.com/CompPhysics/MachineLearning/raw/master/doc/Projects/2018/Project1/DataFiles/SRTM_data_Norway_1.tif
 
 clean:
 	latexmk -c

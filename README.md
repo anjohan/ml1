@@ -2,3 +2,16 @@
 First project in FYS-STK4155
 
 ![uml-diagram](uml.svg)
+
+# Prerequisites
+
+- cmake
+- python with numpy and scikit-learn
+- asymptote
+- fortran compiler (tested with gfortran and ifort)
+- LAPACK, MKL or similar
+- latexmk and lualatex
+- pdf2svg
+
+# Everything
+`make -j`

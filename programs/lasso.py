@@ -29,7 +29,7 @@ def create_X(x1, x2, d):
 N = 10000
 d = 5
 sigma = 0.1
-alpha = 0.0001
+alpha = 0.000001
 num_bootstraps = 1000
 test_fraction = 0.4
 
@@ -88,6 +88,7 @@ with open("data/verification_bias_variance_lasso.dat", "w") as outfile:
 
 np.savetxt(
     "data/verification_mean_beta_sklearn.dat",
-    np.column_stack((np.arange(p) + 1, mean_beta, beta_variances)),
+    np.column_stack((np.arange(p) + 1, mean_beta,
+                     2 * np.sqrt(beta_variances))),
     header="index beta uncertainty",
     comments="")

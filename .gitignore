@@ -1,3 +1,4 @@
+*.tif
 *.dat
 build/
 *.makefile

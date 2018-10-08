@@ -50,4 +50,5 @@ program complexity
 
         write(u, fmt="(*(:,x,f0.8))") bs%mean_MSE, bs%bias, bs%variance
     end do
+    close(u)
 end program
