@@ -13,7 +13,7 @@ build: $(sources)
 
 .PRECIOUS: $(verification_figs)
 
-deps = sources.bib figs/franke.pdf data/verification_beta_OLS.dat data/verification_mean_beta_sklearn.dat $(verification_figs) data/complexity.dat data/verification_bias_variance.dat data/verification_mse_r2.dat data/noise.dat data/r2_lambda.dat geography.tif
+deps = sources.bib figs/franke.pdf data/verification_beta_OLS.dat data/verification_mean_beta_sklearn.dat $(verification_figs) data/complexity.dat data/verification_bias_variance.dat data/verification_mse_r2.dat data/noise.dat data/r2_lambda.dat figs/geography.pdf data/geography_mse.dat figs/geography_approx.pdf
 
 %.pdf: %.tex $(deps) lib/lasso.f90 lib/bootstrap.f90
 	latexmk -pdflua -time -shell-escape $*
@@ -21,11 +21,18 @@ deps = sources.bib figs/franke.pdf data/verification_beta_OLS.dat data/verificat
 %.pdf: %.asy
 	asy -maxtile "(400,400)" -o $@ $<
 
+
 %.svg: %.pdf report.pdf
 	pdf2svg $< $@
 
 figs/verification_%.pdf: figs/verification.asy data/verification_beta_OLS.dat
 	asy -maxtile "(400,400)" -o $@ - <<< $$(echo 'string method = "$*";'; cat $<)
+
+figs/geography.pdf: figs/geography.asy data/geography.txt
+	asy -maxtile "(400,400)" -o $@ $<
+
+figs/geography_approx.pdf: figs/geography_approx.asy data/geography_mse.dat
+	asy -maxtile "(400,400)" -o $@ $<
 
 data/verification_beta_OLS.dat: build/verification
 	./$<
@@ -46,8 +53,14 @@ data/verification_mse_r2.dat: data/verification_mean_beta_sklearn.dat data/verif
 
 data/r2_lambda.dat: build/regularisation
 	./$<
-geography.tif:
-	wget -O geography.tif https://github.com/CompPhysics/MachineLearning/raw/master/doc/Projects/2018/Project1/DataFiles/SRTM_data_Norway_1.tif
+
+data/geography_mse.dat: build/geography data/geography.txt
+	./$< < data/geography.txt
+
+%.txt: %.tif tif2txt.py
+	python tif2txt.py $< 0.01
+data/geography.tif:
+	wget -O data/geography.tif https://github.com/CompPhysics/MachineLearning/raw/master/doc/Projects/2018/Project1/DataFiles/SRTM_data_Norway_1.tif
 
 clean:
 	latexmk -c
