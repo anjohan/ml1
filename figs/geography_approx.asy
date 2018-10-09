@@ -2,8 +2,8 @@
 
 settings.outformat = "pdf";
 settings.prc = false;
-settings.render = 8;
-size(10cm,6cm,IgnoreAspect);
+settings.render = 16;
+size(15cm,10cm,IgnoreAspect);
 import three;
 import graph3;
 import palette;
@@ -14,7 +14,7 @@ currentprojection=orthographic(view,up=Z);
 currentlight=light(view);
 real myopacity=0.6;
 
-real[] beta = input("data/geography_beta").line().csv();
+real[] beta = input("data/geography_beta.dat").line().csv();
 
 int p = beta.length;
 int d = (int) round((-3+sqrt(9+8*(p-1)))/2);
@@ -33,7 +33,7 @@ triple approx(pair x){
     return (x2, x1, y);
 }
 
-surface s = surface(approx, (0,0), (1,1),nu=100,nv=100);
+surface s = surface(approx, (0,0), (1,1),nu=100,nv=100, Spline);
 draw(s,mean(palette(s.map(zpart),Grayscale())) + 0.2*black);
 
 axes3("$x_1$","$x_2$","$y$",min=(-0.2,-0.2,-0.2),max=(1.2,1.2,1.2),arrow=Arrow3());

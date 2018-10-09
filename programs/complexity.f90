@@ -44,11 +44,13 @@ program complexity
 
         write(u, fmt="(i0,*(:,x,f0.8))", advance="no") d(i), bs%mean_MSE, bs%bias, bs%variance
 
+        deallocate(fitter, bs)
         fitter = ridge(lambda, basis)
         bs = bootstrapper(fitter)
         call bs%bootstrap(x, y, num_bootstraps, test_fraction)
 
         write(u, fmt="(*(:,x,f0.8))") bs%mean_MSE, bs%bias, bs%variance
+        deallocate(fitter, bs)
     end do
     close(u)
 end program

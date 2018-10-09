@@ -43,7 +43,7 @@ program geography
 
     best_mse = huge(1.0d0)
 
-    do d = 1, 22
+    do d = 1, 6
         write(*,*) "d = ", d
         call create_basis(basis, d)
 

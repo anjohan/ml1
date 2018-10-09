@@ -1,19 +1,21 @@
 sources = $(shell find -name "*.f90")
 SHELL := /usr/bin/bash
-methods = OLS Ridge LASSO
+methods = OLS Ridge
 verification_figs = $(foreach method,$(methods),figs/verification_$(method).pdf)
+deps = sources.bib figs/franke.pdf data/verification_beta_OLS.dat data/verification_mean_beta_sklearn.dat $(verification_figs) data/complexity.dat data/verification_bias_variance.dat data/verification_mse_r2.dat data/noise.dat data/r2_lambda.dat figs/geography.pdf data/geography_mse.dat figs/geography_approx.pdf
 
 all:
+	mkdir -p data
 	make build
+	make -j $(deps)
 	make report.pdf
 	make uml.svg
 
 build: $(sources)
 	mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make
 
-.PRECIOUS: $(verification_figs)
+.PRECIOUS: $(verification_figs) data/*.dat
 
-deps = sources.bib figs/franke.pdf data/verification_beta_OLS.dat data/verification_mean_beta_sklearn.dat $(verification_figs) data/complexity.dat data/verification_bias_variance.dat data/verification_mse_r2.dat data/noise.dat data/r2_lambda.dat figs/geography.pdf data/geography_mse.dat figs/geography_approx.pdf
 
 %.pdf: %.tex $(deps) lib/lasso.f90 lib/bootstrap.f90
 	latexmk -pdflua -time -shell-escape $*

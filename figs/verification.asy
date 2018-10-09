@@ -2,7 +2,7 @@
 
 settings.outformat = "pdf";
 settings.prc = false;
-settings.render = 8;
+settings.render = 16;
 size(12cm,8cm,IgnoreAspect);
 import three;
 import graph3;

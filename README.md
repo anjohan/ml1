@@ -6,7 +6,8 @@ First project in FYS-STK4155
 # Prerequisites
 
 - cmake
-- python with numpy and scikit-learn
+- wget
+- python with numpy imageio tqdm scikit-learn
 - asymptote
 - fortran compiler (tested with gfortran and ifort)
 - LAPACK, MKL or similar
