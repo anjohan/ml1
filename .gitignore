@@ -1,6 +1,7 @@
 *.tif
 *.dat
 build/
+data/
 *.makefile
 *.figlist
 tags
